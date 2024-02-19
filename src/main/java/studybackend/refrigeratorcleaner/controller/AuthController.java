@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import studybackend.refrigeratorcleaner.dto.MemberRequestDto;
+import studybackend.refrigeratorcleaner.dto.UserRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
@@ -52,9 +52,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signup(@RequestPart(value = "file",required = false) MultipartFile multipartFile,@RequestPart(value = "memberRequestDto") MemberRequestDto memberRequestDto) throws IOException {
-        log.info("pw:{}",memberRequestDto.getPassword());
-        authService.signup(memberRequestDto.getEmail(),memberRequestDto.getPassword(),multipartFile,memberRequestDto.getNickName());
+    public ResponseEntity<Object> signup(@RequestPart(value = "file",required = false) MultipartFile multipartFile,@RequestPart(value = "userRequestDto") UserRequestDto userRequestDto) throws IOException {
+        log.info("pw:{}", userRequestDto.getPassword());
+        authService.signup(userRequestDto.getEmail(), userRequestDto.getPassword(),multipartFile, userRequestDto.getNickName());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
