@@ -7,10 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import studybackend.refrigeratorcleaner.dto.MemberRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 @Slf4j
@@ -47,4 +51,12 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<Object> signup(@RequestPart(value = "file",required = false) MultipartFile multipartFile,@RequestPart(value = "memberRequestDto") MemberRequestDto memberRequestDto) throws IOException {
+        log.info("pw:{}",memberRequestDto.getPassword());
+        authService.signup(memberRequestDto.getEmail(),memberRequestDto.getPassword(),multipartFile,memberRequestDto.getNickName());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
 }
