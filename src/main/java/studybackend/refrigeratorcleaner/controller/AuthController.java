@@ -39,4 +39,12 @@ public class AuthController {
 
     }
 
+    @PostMapping("/verify-nickname")
+    public ResponseEntity<Object> verifyNickName(@RequestBody HashMap<String, String> nickName) throws MessagingException {
+
+        authService.verifyNickName(nickName.get("nickName"));
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }
