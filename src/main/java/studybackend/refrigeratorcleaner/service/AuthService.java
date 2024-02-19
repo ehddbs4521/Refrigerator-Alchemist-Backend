@@ -90,5 +90,21 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public void signup(String email, String pw, MultipartFile multipartFile, String nickName) throws IOException {
+        String socialId = UUID.randomUUID().toString().replace("-", "").substring(0, 13);
+        String password = passwordEncoder.encode(pw);
+        String fileName = multipartFile.getOriginalFilename();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(multipartFile.getContentType());
+        metadata.setContentLength(multipartFile.getSize());
+        amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
+        String url = amazonS3Client.getUrl(bucket, fileName).toString();
+        User user = userRepository.findByNickName(nickName).get();
+        user.updateAll(email, password, socialId,url,Refrigerator_Cleaner.getKey());
+        userRepository.save(user);
+        userRepository.deleteEverything();
+    }
+
 
 }
