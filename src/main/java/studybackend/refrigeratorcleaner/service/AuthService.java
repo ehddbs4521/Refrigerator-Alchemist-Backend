@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +10,20 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailResonseDto;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.oauth.dto.Role;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
+
+import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Cleaner;
 
 
 @Slf4j
@@ -72,6 +79,16 @@ public class AuthService {
         userRepository.save(user);
     }
 
+
+    public void verifyEmail(VerifyEmailRequestDto verifyEmailRequestDto) {
+
+        if (!verifyEmailRequestDto.getRandomNum().equals(verifyEmailRequestDto.getInputNum())) {
+            throw new RuntimeException("인증번호가 틀렸습니다.");
+        }
+        if (verifyEmailRequestDto.getSendTime().isAfter(verifyEmailRequestDto.getExpireTime())) {
+            throw new RuntimeException("인증번호가 만료되었습니다.");
+        }
+    }
 
 
 }
