@@ -1,0 +1,13 @@
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAYS2NVI4GMF4BAAUX
+      secretKey: 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
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+application:
+  bucket:
+    name: openai-food-image
