@@ -22,7 +22,7 @@ public class LoginService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
+                .username(user.getSocialId())
                 .password(user.getPassword())
                 .roles(user.getRole())
                 .build();

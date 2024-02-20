@@ -23,11 +23,11 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
-        String email = request.getParameter("email");
         String socialId = extractUsername(authentication);
+        String email = userRepository.findBySocialId(socialId).get().getEmail();
 
         String accessToken = jwtService.generateAccessToken(email);
-        String refreshToken = jwtService.generateRefreshToken();
+        String refreshToken = jwtService.generateRefreshToken(email);
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
 
