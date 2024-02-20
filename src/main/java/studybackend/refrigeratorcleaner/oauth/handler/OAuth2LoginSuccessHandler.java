@@ -36,7 +36,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             if(oAuth2User.getRole() == Role.GUEST.getKey()) {
                 User user = userRepository.findBySocialId(oAuth2User.getSocialId()).get();
                 String accessToken = jwtService.generateAccessToken(oAuth2User.getEmail());
-                String refreshToken = jwtService.generateRefreshToken();
+                String refreshToken = jwtService.generateRefreshToken(oAuth2User.getEmail());
                 user.updateRefreshToken(refreshToken);
                 userRepository.save(user);
                 response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
@@ -54,7 +54,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.generateAccessToken(oAuth2User.getEmail());
-        String refreshToken = jwtService.generateRefreshToken();
+        String refreshToken = jwtService.generateRefreshToken(oAuth2User.getEmail());
 
         log.info("accesstoken:{}", accessToken);
         log.info("refreshtoken:{}", refreshToken);
