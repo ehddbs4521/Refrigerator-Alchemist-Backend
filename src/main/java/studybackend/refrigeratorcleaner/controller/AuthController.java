@@ -52,11 +52,10 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signup(@RequestPart(value = "file",required = false) MultipartFile multipartFile,@RequestPart(value = "userRequestDto") UserRequestDto userRequestDto) throws IOException {
-        log.info("pw:{}", userRequestDto.getPassword());
-        authService.signup(userRequestDto.getEmail(), userRequestDto.getPassword(),multipartFile, userRequestDto.getNickName());
+    public ResponseEntity<Object> signup(@RequestPart(value = "file", required = false) MultipartFile multipartFile, @RequestPart(value = "userRequestDto") UserRequestDto userRequestDto) throws IOException {
+
+        authService.signup(userRequestDto.getEmail(), userRequestDto.getPassword(), multipartFile, userRequestDto.getNickName());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
     }
 }
