@@ -41,6 +41,9 @@ public class AuthService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("default.profile")
+    private String defaultProfile;
+
     public VerifyEmailResonseDto sendEmail(String email) throws MessagingException {
 
         if (userRepository.existsByEmail(email)) {
@@ -51,7 +54,7 @@ public class AuthService {
         LocalDateTime createTime = LocalDateTime.now();
         LocalDateTime expireTime = LocalDateTime.now().plusMinutes(10);
 
-        emailUtil.sendEmail(email,randomNum);
+        emailUtil.sendEmail(email, randomNum);
 
         VerifyEmailResonseDto verifyEmailResonseDto = VerifyEmailResonseDto.
                 builder()
@@ -94,16 +97,29 @@ public class AuthService {
     public void signup(String email, String pw, MultipartFile multipartFile, String nickName) throws IOException {
         String socialId = UUID.randomUUID().toString().replace("-", "").substring(0, 13);
         String password = passwordEncoder.encode(pw);
-        String fileName = multipartFile.getOriginalFilename();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(multipartFile.getContentType());
-        metadata.setContentLength(multipartFile.getSize());
-        amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
-        String url = amazonS3Client.getUrl(bucket, fileName).toString();
+        String url;
+
+        url = createProfileUrl(multipartFile);
+
         User user = userRepository.findByNickName(nickName).get();
         user.updateAll(email, password, socialId,url,Refrigerator_Cleaner.getKey());
         userRepository.save(user);
         userRepository.deleteEverything();
+    }
+
+    private String createProfileUrl(MultipartFile multipartFile) throws IOException {
+        String url;
+        if (multipartFile.isEmpty()) {
+            url = defaultProfile;
+        } else {
+            String fileName = multipartFile.getOriginalFilename();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(multipartFile.getContentType());
+            metadata.setContentLength(multipartFile.getSize());
+            amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
+            url = amazonS3Client.getUrl(bucket, fileName).toString();
+        }
+        return url;
     }
 
 
