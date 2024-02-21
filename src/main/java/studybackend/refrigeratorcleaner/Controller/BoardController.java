@@ -50,4 +50,9 @@ public class BoardController {
         bService.saveBoardContent(boardContent);
         return "redirect:/board";
     }
+//    @GetMapping(value = "board/likeApi")
+//    public String clickLike() {
+//        board
+//        bService.addLike();
+//    }
 }

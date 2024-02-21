@@ -22,4 +22,6 @@ public class BoardService {
         public List<Board> getBoard() {
                 return bRepository.getBoard();
         }
+        //제목으로 검색
+        public List<Board> searchBoard (String title) {return  bRepository.searchTitle(title);}
  }

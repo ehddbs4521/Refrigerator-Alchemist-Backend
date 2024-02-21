@@ -15,10 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BoardApiController {
     private  final BoardService boardService;
-    Map<String, List<String>> content = new HashMap<>();
-    @GetMapping(value = "board/apiTest")
-    public  Map<String,List<String>> getContent(){
-        List<Board> boards = boardService.getBoard();
+    public Map<String,List<String>>  makeApi (Map<String,List<String>> content ,List<Board> boards){
         List<String> email = new ArrayList<>();
         List<String> nickName = new ArrayList<>();
         List<String> texts = new ArrayList<>();
@@ -33,6 +30,21 @@ public class BoardApiController {
         content.put("nickName",nickName);
         content.put("texts",texts);
         content.put("title",title);
+        return content;
+    }
+    @GetMapping(value = "board/apiTest")
+    public  Map<String,List<String>> getContent(){
+        Map<String, List<String>> content = new HashMap<>();
+        List<Board> boards = boardService.getBoard();
+        makeApi(content,boards);
         return  content;
+    }
+    //제목 검색기능
+    @GetMapping(value = "board/searchTitle")
+    public Map<String,List<String>> searchTitle() {
+        Map<String, List<String>> content = new HashMap<>();
+        List<Board> boards =  boardService.searchBoard("qwe");
+        makeApi(content,boards);
+        return content;
     }
 }

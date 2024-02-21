@@ -25,4 +25,8 @@ public class BoardRepository {
     public  List<Board> getBoard(){
         return em.createQuery("select m from Board m", Board.class).getResultList();
     }
+    public List<Board> searchTitle(String title) {
+        return em.createQuery("select m from Board m where m.title := title", Board.class)
+                .setParameter("title",title).getResultList();
+    }
 }
