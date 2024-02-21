@@ -21,7 +21,6 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-//@Transactional
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
