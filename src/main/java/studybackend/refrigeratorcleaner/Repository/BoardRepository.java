@@ -16,6 +16,7 @@ public class BoardRepository {
     public void saveBoard (Board b) {
             em.persist(b);
     }
+    public  void updateBoard (Board b) {em.merge(b);}
     public  void saveBoardContent(BoardContent bC){
         em.persist(bC);
     }
@@ -26,7 +27,8 @@ public class BoardRepository {
         return em.createQuery("select m from Board m", Board.class).getResultList();
     }
     public List<Board> searchTitle(String title) {
-        return em.createQuery("select m from Board m where m.title := title", Board.class)
+        return em.createQuery("select m from Board m where m.title =: title", Board.class)
                 .setParameter("title",title).getResultList();
     }
+
 }

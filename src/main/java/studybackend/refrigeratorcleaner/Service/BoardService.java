@@ -18,6 +18,7 @@ public class BoardService {
         public void saveBoard(Board b){
                 bRepository.saveBoard(b);
         }
+        public void updateBoard (Board b) {bRepository.updateBoard(b);}
         public  void saveBoardContent(BoardContent bC) {bRepository.saveBoardContent(bC);}
         public List<Board> getBoard() {
                 return bRepository.getBoard();

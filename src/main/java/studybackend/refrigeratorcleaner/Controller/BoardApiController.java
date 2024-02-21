@@ -43,6 +43,7 @@ public class BoardApiController {
     @GetMapping(value = "board/searchTitle")
     public Map<String,List<String>> searchTitle() {
         Map<String, List<String>> content = new HashMap<>();
+        //검색하고 싶은 제목을 인자에 넣음
         List<Board> boards =  boardService.searchBoard("qwe");
         makeApi(content,boards);
         return content;

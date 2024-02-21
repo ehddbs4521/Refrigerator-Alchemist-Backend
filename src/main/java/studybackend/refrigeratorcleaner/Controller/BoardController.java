@@ -15,6 +15,8 @@ import studybackend.refrigeratorcleaner.Entity.BoardContent;
 import studybackend.refrigeratorcleaner.Form.LoginForm;
 import studybackend.refrigeratorcleaner.Service.BoardService;
 
+import java.util.List;
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor
@@ -50,9 +52,12 @@ public class BoardController {
         bService.saveBoardContent(boardContent);
         return "redirect:/board";
     }
-//    @GetMapping(value = "board/likeApi")
-//    public String clickLike() {
-//        board
-//        bService.addLike();
-//    }
+    @GetMapping (value = "board/likeApi")
+    public String clickLike() {
+        //좋아요 클릭할 게시물의 제목으로 검색해 가져옴
+        List<Board> boards =  bService.searchBoard("qwe");
+        boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
+        bService.updateBoard(boards.get(0)); //변경된 좋아요 수를 db에 반영
+        return "home";
+    }
 }
