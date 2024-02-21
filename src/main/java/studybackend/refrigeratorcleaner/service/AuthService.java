@@ -6,11 +6,11 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailResonseDto;
 import studybackend.refrigeratorcleaner.entity.User;
@@ -31,7 +31,6 @@ import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailUtil emailUtil;
@@ -122,5 +121,17 @@ public class AuthService {
         return url;
     }
 
+    @Transactional
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
 
+        if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getRePassword())) {
+            throw new RuntimeException("비밀번호를 재입력 해주세요.");
+        }
+
+        userRepository.findBySocialTypeAndEmail(resetPasswordRequest.getSocialType(),resetPasswordRequest.getEmail())
+                .ifPresent(user -> {
+                    user.updatePassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+                    userRepository.save(user);
+                });
+    }
 }
