@@ -14,7 +14,7 @@ import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailResonseDto;
 import studybackend.refrigeratorcleaner.entity.User;
-import studybackend.refrigeratorcleaner.oauth.dto.Role;
+import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 

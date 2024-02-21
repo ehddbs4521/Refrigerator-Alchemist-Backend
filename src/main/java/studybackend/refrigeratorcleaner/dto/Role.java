@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.oauth.dto;
+package studybackend.refrigeratorcleaner.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.oauth.dto.CustomOAuth2User;
 import studybackend.refrigeratorcleaner.oauth.dto.OAuthAttributes;
-import studybackend.refrigeratorcleaner.oauth.dto.Role;
+import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.oauth.dto.SocialType;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
