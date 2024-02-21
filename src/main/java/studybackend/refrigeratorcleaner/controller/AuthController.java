@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<Object> verifyEmail(@RequestBody VerifyEmailRequestDto verifyEmailRequestDto) throws MessagingException {
+    public ResponseEntity<Object> verifyEmail(@RequestBody VerifyEmailRequestDto verifyEmailRequestDto) {
 
         authService.verifyEmail(verifyEmailRequestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

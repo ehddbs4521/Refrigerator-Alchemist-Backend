@@ -84,6 +84,9 @@ public class AuthService {
 
     public void verifyEmail(VerifyEmailRequestDto verifyEmailRequestDto) {
 
+        if (userRepository.existsByEmail(verifyEmailRequestDto.getEmail())) {
+            throw new RuntimeException("이미 존재하는 이메일입니다.");
+        }
         if (!verifyEmailRequestDto.getRandomNum().equals(verifyEmailRequestDto.getInputNum())) {
             throw new RuntimeException("인증번호가 틀렸습니다.");
         }

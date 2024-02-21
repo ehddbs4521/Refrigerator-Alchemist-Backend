@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class VerifyEmailRequestDto {
 
+    private final String email;
     private final String randomNum;
     private final String inputNum;
     private final LocalDateTime sendTime;
