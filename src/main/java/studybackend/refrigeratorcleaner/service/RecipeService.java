@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.service;
 
-import studybackend.refrigeratorcleaner.dto.RecipeDto;
+import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.entity.Member;
 import studybackend.refrigeratorcleaner.entity.Recipe;
 import studybackend.refrigeratorcleaner.repository.MemberRepository;
@@ -46,7 +47,7 @@ public class RecipeService {
     }
 
     //레시피 저장하기
-    public Long saveRecipe(RecipeDto recipeDto, String email){
+    public Long saveRecipe(DetailRecipeDto recipeDto, String email){
         Member member = memberRepository.findByEmail(email);
         String fileName = UUID.randomUUID().toString().concat(recipeDto.getFoodName());
         String S3imageUrl;
@@ -70,10 +71,23 @@ public class RecipeService {
         return recipe.getRecipeId();
     }
 
-    //레시피 조회하기
-    public List<RecipeDto> getRecipeList(String email) {
-        List<RecipeDto> recipeDtoList = recipeRepository.findRecipeDtoList(email);
+    //레시피 목록 조회하기
+    public List<MyRecipeDto> getRecipeList(String email) {
+        List<MyRecipeDto> myRecipeDtoList = recipeRepository.findRecipeDtoList(email);
 
-        return recipeDtoList;
+        return myRecipeDtoList;
+    }
+
+    //상세레시피 가져오기
+    public DetailRecipeDto getDetailRecipe(Long recipeId){
+        Recipe recipe = recipeRepository.findByRecipeId(recipeId);
+        DetailRecipeDto detailRecipeDto = DetailRecipeDto.builder()
+                .ingredients(recipe.getIngredientList())
+                .recipe(recipe.getRecipeList())
+                .imgUrl(recipe.getImgURL())
+                .foodName(recipe.getFoodName())
+                .build();
+
+        return detailRecipeDto;
     }
 }

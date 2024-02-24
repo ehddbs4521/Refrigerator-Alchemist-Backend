@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.service;
 
-import studybackend.refrigeratorcleaner.dto.RecipeDto;
+import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.RecommendDto;
 import studybackend.refrigeratorcleaner.entity.Authority;
 import studybackend.refrigeratorcleaner.entity.Member;
@@ -65,7 +66,7 @@ class RecipeServiceTest {
         recipeList.add("음식" + n + " 레시피3");
         recipeList.add("음식" + n + " 레시피4");
 
-        RecipeDto recipeDto = RecipeDto.builder()
+        DetailRecipeDto recipeDto = DetailRecipeDto.builder()
                 .ingredients(ingredientList)
                 .imgUrl("testImgURL"+n)
                 .foodName("음식"+n)
@@ -83,8 +84,8 @@ class RecipeServiceTest {
 
         //재료 리스트 만들기
         List<String> ingredientList = new ArrayList<>();
-        ingredientList.add("파");
-        ingredientList.add("김치");
+        ingredientList.add("양배추");
+        ingredientList.add("감자");
         ingredientList.add("양파");
         ingredientList.add("두부");
         ingredientList.add("버섯");
@@ -93,7 +94,7 @@ class RecipeServiceTest {
         //레시피 추천받아 recommendDto에 받아옴
         RecommendDto recommendDto = recommendService.recommend(ingredientList);
 
-        RecipeDto recipeDto = RecipeDto.builder()
+        DetailRecipeDto recipeDto = DetailRecipeDto.builder()
                 .recipe(recommendDto.getRecipe())
                 .ingredients(recommendDto.getIngredients())
                 .foodName(recommendDto.getFoodName())
@@ -108,14 +109,18 @@ class RecipeServiceTest {
         assertEquals(recipeDto.getRecipe(), savedRecipe.getRecipeList());
         assertEquals(member, savedRecipe.getMember());
 
-        //레시피 조회
-        List<RecipeDto> recipeDtoList = recipeService.getRecipeList(member.getEmail());
-        for (RecipeDto rd : recipeDtoList) {
-            System.out.println(rd.getFoodName());
-            System.out.println(rd.getIngredients());
-            System.out.println(rd.getRecipe());
-            System.out.println(rd.getImgUrl());
+        //myRecipe 목록 조회
+        List<MyRecipeDto> myRecipeDtoList = recipeService.getRecipeList(member.getEmail());
+        for (MyRecipeDto mr : myRecipeDtoList) {
+            System.out.println(mr.getFoodName());
+            System.out.println(mr.getIngredients());
             System.out.println();
         }
+
+        MyRecipeDto first = myRecipeDtoList.get(0);
+        //레시피 상세 조회
+        DetailRecipeDto detailRecipeDto = recipeService.getDetailRecipe(first.getRecipeId());
+        assertEquals(detailRecipeDto.getIngredients(), first.getIngredients());
+        assertEquals(detailRecipeDto.getFoodName(), first.getFoodName());
     }
 }

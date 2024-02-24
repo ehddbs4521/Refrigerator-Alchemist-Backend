@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeDto {
+public class DetailRecipeDto {
 
     @NotBlank(message = "요리명은 필수 입력 값입니다.")
     private String foodName;
@@ -28,7 +28,7 @@ public class RecipeDto {
     private List<String> recipe;
 
     @Builder
-    public RecipeDto(String foodName, String imgUrl, List<String> ingredients, List<String> recipe) {
+    public DetailRecipeDto(String foodName, String imgUrl, List<String> ingredients, List<String> recipe) {
         this.foodName = foodName;
         this.imgUrl = imgUrl;
         this.ingredients = ingredients;

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,14 +21,14 @@ public class RecommendController {
 
     //추천받기 클릭시
     @PostMapping(value = "/recipe/recommend")
-    public @ResponseBody ResponseEntity recommend(@RequestBody List<String> ingredients){
+    public @ResponseBody ResponseEntity recommend(@RequestBody Map<String, List<String>> ingredientsMap){
 
         RecommendDto recommendDto;
 
         try{
-            recommendDto = recommendService.recommend(ingredients);
+            recommendDto = recommendService.recommend(ingredientsMap.get("ingredients"));
         }catch (Exception e){
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE); //406
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<RecommendDto>(recommendDto, HttpStatus.OK);

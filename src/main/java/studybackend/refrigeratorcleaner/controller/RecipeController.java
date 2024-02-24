@@ -1,6 +1,8 @@
 package studybackend.refrigeratorcleaner.controller;
 
-import studybackend.refrigeratorcleaner.dto.RecipeDto;
+import org.springframework.web.bind.annotation.*;
+import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
@@ -25,7 +23,7 @@ public class RecipeController {
 
     //이 레시피 저장 클릭시
     @PostMapping(value = "/recipe/save")
-    public @ResponseBody ResponseEntity saveRecipe(@Valid RecipeDto recipeDto, BindingResult bindingResult, Principal principal){
+    public @ResponseBody ResponseEntity saveRecipe(@Valid @RequestBody DetailRecipeDto recipeDto, BindingResult bindingResult, Principal principal){
 
         //recipeDto 검사
         if(bindingResult.hasErrors()){
@@ -50,18 +48,32 @@ public class RecipeController {
         return new ResponseEntity<Long>(recipeId, HttpStatus.OK);
     }
 
-    //저장한 레시피 보기 클릭
+    //저장한 레시피 간단목록
     @GetMapping("/recipe/MyRecipe")
-    public @ResponseBody ResponseEntity recipeList(Principal principal) {
+    public @ResponseBody ResponseEntity myRecipeList(Principal principal) {
         String email = principal.getName();
-        List<RecipeDto> recipeDtoList;
+        List<MyRecipeDto> myRecipeDtoList;
 
         try {
-            recipeDtoList = recipeService.getRecipeList(email);
+            myRecipeDtoList = recipeService.getRecipeList(email);
         }catch (Exception e){
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<RecipeDto>>(recipeDtoList, HttpStatus.OK);
+        return new ResponseEntity<List<MyRecipeDto>>(myRecipeDtoList, HttpStatus.OK);
+    }
+
+    //저장한 레시피 상세페이지
+    @GetMapping("/recipe/MyRecipe/{recipeId}")
+    public @ResponseBody ResponseEntity detailRecipe(@PathVariable("recipeId") Long recipeId) {
+        DetailRecipeDto detailRecipeDto;
+
+        try{
+            detailRecipeDto = recipeService.getDetailRecipe(recipeId);
+        }catch (Exception e){
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<DetailRecipeDto>(detailRecipeDto, HttpStatus.OK);
     }
 }
