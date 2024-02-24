@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.Controller.dto;
+package studybackend.refrigeratorcleaner.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
