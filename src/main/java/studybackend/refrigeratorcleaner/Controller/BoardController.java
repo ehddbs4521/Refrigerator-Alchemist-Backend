@@ -10,12 +10,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.BoardContent;
 import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Form.LoginForm;
 import studybackend.refrigeratorcleaner.Service.BoardService;
 import studybackend.refrigeratorcleaner.Service.LikeCheckService;
+import studybackend.refrigeratorcleaner.dto.BoardDto;
 
 import java.util.List;
 

@@ -35,13 +35,5 @@ public class Board {
     @Column(name = "like_count") //게시글 좋아요 수
     private int likeCount ;
 
-//    @Builder
-//    public Board(Long id,String email,String nickName,String title,int likeCount){
-//        this.id = id;
-//        this.email = email;
-//        this.nickName = nickName;
-//        this.title = title;
-//        this.likeCount = likeCount;
-//    }
-//    }
+
 }

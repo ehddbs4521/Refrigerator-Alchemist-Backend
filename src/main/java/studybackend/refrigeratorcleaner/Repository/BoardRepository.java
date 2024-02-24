@@ -26,8 +26,8 @@ public class BoardRepository {
     public  List<Board> getBoard(){
         return em.createQuery("select m from Board m order by id desc", Board.class).getResultList();
     }
-    public  List<Board> orderLikeCount(){ //좋아요 순으로 정렬
-        return em.createQuery("select m from Board m order by  likeCount desc", Board.class).getResultList();
+    public  List<Board> orderLikeCount(){ //좋아요 순으로 정렬해서 상위 3개
+        return em.createQuery("select m from Board m order by  likeCount desc limit 3", Board.class).getResultList();
     }
     public List<Board> searchTitle(String title) {
         return em.createQuery("select m from Board m where m.title =: title", Board.class)

@@ -3,6 +3,7 @@ package studybackend.refrigeratorcleaner.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Repository.LikeCheckRepository;
 
@@ -18,5 +19,11 @@ public class LikeCheckService {
     }
     public void  logLikeCheck(LikeCheck l) {
         likeRepo.logLikeCheck(l);
+    }
+    public List<LikeCheck> getMyLikeTitle(String clickerName){
+        return likeRepo.getMyLikeTitle(clickerName);
+    }
+    public  List<Board> getMyLikeList (String nickName,String title) {
+        return likeRepo.getMyLikeList(nickName,title);
     }
 }

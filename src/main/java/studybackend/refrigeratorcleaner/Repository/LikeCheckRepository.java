@@ -22,4 +22,14 @@ public class LikeCheckRepository {
     public void logLikeCheck(LikeCheck l){
         em.persist(l);
     }
+    public List<LikeCheck> getMyLikeTitle(String clickerName) {
+        return em.createQuery("select m from LikeCheck m where " +
+                        "m.clickerName =: clickerName", LikeCheck.class)
+                .setParameter("clickerName",clickerName).getResultList();
+    }
+    public List<Board> getMyLikeList(String nickName,String title) {
+        return em.createQuery("select m from Board m where m.title =: title and m.nickName =: nickName", Board.class)
+                .setParameter("nickName",nickName)
+                .setParameter("title",title).getResultList();
+    }
 }

@@ -2,19 +2,21 @@ package studybackend.refrigeratorcleaner.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import studybackend.refrigeratorcleaner.Entity.Board;
+import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Service.BoardService;
-import studybackend.refrigeratorcleaner.dto.BoardDto;
+import studybackend.refrigeratorcleaner.Service.LikeCheckService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class BoardApiController {
-    private  final BoardService boardService;
-
+public class LikeApiController {
+    private final LikeCheckService lService;
     public Map<String, List<Map<String, Object>>> makeApi(List<Board> boards) {
         Map<String, List<Map<String, Object>>> result = new HashMap<>();
         List<Map<String, Object>> items = new ArrayList<>();
@@ -38,26 +40,14 @@ public class BoardApiController {
         result.put("items", items);
         return result;
     }
-    @GetMapping(value = "board/apiTest") //최신순으로 출력
-    public  Map<String, List<Map<String, Object>>> getContent(){
-
-        List<Board> boards = boardService.getBoard();
-        Map<String, List<Map<String, Object>>> content =  makeApi(boards);
-        return  content;
-    }
-    @GetMapping(value = "board/apiTestLikeCount") // 좋아요 순으로 정렬
-    public  Map<String, List<Map<String, Object>>> orderLikeCount(){
-        List<Board> boards = boardService.orderLikeCount();
-        Map<String, List<Map<String, Object>>> content =  makeApi(boards);
-        return  content;
-    }
-    //제목 검색기능
-    @GetMapping(value = "board/searchTitle")
-    public Map<String, List<Map<String, Object>>> searchTitle() {
-        //검색하고 싶은 제목을 인자에 넣음
-        List<Board> boards =  boardService.searchBoard("qwe");
-        Map<String, List<Map<String, Object>>> content =  makeApi(boards);
+    @GetMapping(value = "board/myLike")
+    public Map<String, List<Map<String, Object>>> myLike() {
+        String clicker = "changeme";
+        List<LikeCheck> like =  lService.getMyLikeTitle(clicker);
+        String nickName = like.get(0).getNickName();
+        String title = like.get(0).getTitle();
+        List<Board> board= lService.getMyLikeList(nickName,title);
+        Map<String, List<Map<String, Object>>> content =  makeApi(board);
         return content;
     }
-
 }
