@@ -29,5 +29,7 @@ public class BoardService {
         //제목으로 검색
         public List<Board> searchBoard (String title) {return  bRepository.searchTitle(title);}
         // 닉네임으로 게시글 삭제
-
+        public List<Board> myList(String nickName) {
+                return  bRepository.myList(nickName);
+        }
  }

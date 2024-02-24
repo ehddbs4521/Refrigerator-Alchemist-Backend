@@ -60,4 +60,11 @@ public class BoardApiController {
         return content;
     }
 
+    @GetMapping(value = "board/myList")
+    public Map<String, List<Map<String, Object>>> myList() {
+        String nickName  =  "test";
+        List<Board> boards =  boardService.myList(nickName);
+        Map<String, List<Map<String, Object>>> content =  makeApi(boards);
+        return content;
+    }
 }

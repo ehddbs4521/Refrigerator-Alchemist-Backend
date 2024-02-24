@@ -33,5 +33,9 @@ public class BoardRepository {
         return em.createQuery("select m from Board m where m.title =: title", Board.class)
                 .setParameter("title",title).getResultList();
     }
-
+    public List<Board>myList(String nickName)
+    {
+        return em.createQuery("select m from Board m where m.nickName =: nickName", Board.class)
+                .setParameter("nickName",nickName).getResultList();
+    }
 }
