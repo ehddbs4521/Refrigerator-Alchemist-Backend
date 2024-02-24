@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.BoardContent;
 import studybackend.refrigeratorcleaner.Repository.BoardRepository;
+import studybackend.refrigeratorcleaner.Repository.DeleteUser;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardService {
         private final BoardRepository bRepository ;
+
         public void saveBoard(Board b){
                 bRepository.saveBoard(b);
         }
@@ -23,6 +25,9 @@ public class BoardService {
         public List<Board> getBoard() {
                 return bRepository.getBoard();
         }
+        public List<Board> orderLikeCount() {return bRepository.orderLikeCount();}
         //제목으로 검색
         public List<Board> searchBoard (String title) {return  bRepository.searchTitle(title);}
+        // 닉네임으로 게시글 삭제
+
  }

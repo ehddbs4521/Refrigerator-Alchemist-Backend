@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.BoardContent;
+import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Form.LoginForm;
 import studybackend.refrigeratorcleaner.Service.BoardService;
+import studybackend.refrigeratorcleaner.Service.LikeCheckService;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService bService ;
+    private final LikeCheckService lService;
     @GetMapping(value = "/board")
     public  String Board(HttpServletRequest request) {
         return "home";
@@ -43,21 +46,34 @@ public class BoardController {
 //                .likeCount(0)
 //                .title(board.getTitle())  // 기존 board의 title을 가져옴
 //                .build();
-        board.setEmail("test@naver.com");
-        boardContent.setEmail("test@naver.com");
+        board.setEmail("delTest@naver.com");
+        boardContent.setEmail("delTest@naver.com");
         board.setLikeCount(0);
-        board.setNickName("test");
-        boardContent.setNickName("test");
+        board.setNickName("delTest");
+        boardContent.setNickName("delTest");
         bService.saveBoard(board);
         bService.saveBoardContent(boardContent);
         return "redirect:/board";
     }
-    @GetMapping (value = "board/likeApi")
+    @GetMapping (value = "board/likeApi") // 좋아요 누르기
     public String clickLike() {
-        //좋아요 클릭할 게시물의 제목으로 검색해 가져옴
-        List<Board> boards =  bService.searchBoard("qwe");
-        boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
-        bService.updateBoard(boards.get(0)); //변경된 좋아요 수를 db에 반영
+
+        String nickName = "test";
+        String title = "jxckmnjv";
+        String clickerName = "changeme";
+        //좋아요 누르기 전 '좋아요' 중복클릭 했는지 체크
+        if(lService.verifyDoubleLike(nickName,title,clickerName).size()==0){
+            //좋아요 클릭할 게시물의 제목으로 검색해 가져옴
+            List<Board> boards =  bService.searchBoard(title);
+            boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
+            bService.updateBoard(boards.get(0)); //변경된 좋아요 수를 db에 반영
+
+            LikeCheck l = new LikeCheck();
+            l.setNickName(nickName);
+            l.setTitle(title);
+            l.setClickerName(clickerName);
+            lService.logLikeCheck(l);
+        }
         return "home";
     }
 }
