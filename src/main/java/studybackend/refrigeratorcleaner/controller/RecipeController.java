@@ -49,7 +49,7 @@ public class RecipeController {
     }
 
     //저장한 레시피 간단목록
-    @GetMapping("/recipe/MyRecipe")
+    @GetMapping("/recipe/myRecipe")
     public @ResponseBody ResponseEntity myRecipeList(Principal principal) {
         String email = principal.getName();
         List<MyRecipeDto> myRecipeDtoList;
@@ -64,7 +64,7 @@ public class RecipeController {
     }
 
     //저장한 레시피 상세페이지
-    @GetMapping("/recipe/MyRecipe/{recipeId}")
+    @GetMapping("/recipe/myRecipe/{recipeId}")
     public @ResponseBody ResponseEntity detailRecipe(@PathVariable("recipeId") Long recipeId) {
         DetailRecipeDto detailRecipeDto;
 
