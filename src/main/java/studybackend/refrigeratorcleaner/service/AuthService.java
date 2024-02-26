@@ -49,7 +49,7 @@ public class AuthService {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
 
-        String randomNum = String.valueOf((new Random().nextInt(90000) + 10000));
+        String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
         LocalDateTime createTime = LocalDateTime.now();
         LocalDateTime expireTime = LocalDateTime.now().plusMinutes(10);
 
