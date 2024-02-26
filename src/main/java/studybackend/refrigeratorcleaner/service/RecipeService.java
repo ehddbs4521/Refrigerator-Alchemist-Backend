@@ -1,5 +1,6 @@
 package studybackend.refrigeratorcleaner.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.entity.Member;
@@ -26,7 +27,7 @@ import java.util.UUID;
 public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final MemberRepository memberRepository;
-    private final AmazonS3 s3Client;
+    private final AmazonS3Client amazonS3Client;
 
     @Value("${application.bucket.name}")
     private String bucketName;
@@ -40,10 +41,10 @@ public class RecipeService {
         metadata.setContentType("image/jpg");
 
         //S3에 업로드
-        s3Client.putObject(new PutObjectRequest(bucketName, keyName, in, metadata));
+        amazonS3Client.putObject(new PutObjectRequest(bucketName, keyName, in, metadata));
 
         //S3에 업로드된 이미지의 url을 반환.
-        return s3Client.getUrl(bucketName, keyName).toString();
+        return amazonS3Client.getUrl(bucketName, keyName).toString();
     }
 
     //레시피 저장하기

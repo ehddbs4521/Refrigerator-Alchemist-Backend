@@ -122,5 +122,6 @@ class RecipeServiceTest {
         DetailRecipeDto detailRecipeDto = recipeService.getDetailRecipe(first.getRecipeId());
         assertEquals(detailRecipeDto.getIngredients(), first.getIngredients());
         assertEquals(detailRecipeDto.getFoodName(), first.getFoodName());
+        System.out.println(detailRecipeDto.getImgUrl());
     }
 }
