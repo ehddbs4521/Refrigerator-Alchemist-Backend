@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.UserRequestDto;
 import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
+import studybackend.refrigeratorcleaner.login.dto.LoginRequestDto;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.io.IOException;
@@ -18,7 +19,6 @@ import java.util.HashMap;
 
 @Slf4j
 @RestController
-@RequestMapping("/home")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -63,6 +63,14 @@ public class AuthController {
     public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         authService.resetPassword(resetPasswordRequest);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+
+        log.info("email:{}",loginRequestDto.getEmail());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
