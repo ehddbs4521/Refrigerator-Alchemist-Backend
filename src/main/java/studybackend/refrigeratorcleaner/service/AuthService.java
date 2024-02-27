@@ -47,12 +47,7 @@ public class AuthService {
 
     public VerifyEmailResonse sendEmail(EmailRequest emailRequest) throws MessagingException {
 
-        if (userRepository.existsByEmail(emailRequest.getEmail())&&(emailRequest.getEmailType().equals("sign-up"))) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
-        }
-        if (emailRequest.getEmailType().equals("reset-password")) {
-            throw new RuntimeException("회원가입 시 적용하는 로직입니다.");
-        }
+        validateEmail(emailRequest);
 
         String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
         LocalDateTime createTime = LocalDateTime.now();
@@ -69,6 +64,15 @@ public class AuthService {
 
         return verifyEmailResonse;
 
+    }
+
+    private void validateEmail(EmailRequest emailRequest) {
+        if (userRepository.existsByEmail(emailRequest.getEmail()) && emailRequest.getEmailType().equals("sign-up")) {
+            throw new RuntimeException("이미 가입된 이메일입니다.");
+        }
+        else if (!userRepository.existsByEmail(emailRequest.getEmail()) && emailRequest.getEmailType().equals("reset-password")) {
+            throw new RuntimeException("존재하지 않는 이메일입니다.");
+        }
     }
 
     @Transactional
