@@ -10,9 +10,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
-import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
-import studybackend.refrigeratorcleaner.dto.VerifyEmailResonseDto;
+import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
+import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
+import studybackend.refrigeratorcleaner.dto.request.UserRequest;
+import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
+import studybackend.refrigeratorcleaner.dto.response.VerifyEmailResonse;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
@@ -43,26 +45,29 @@ public class AuthService {
     @Value("default.profile")
     private String defaultProfile;
 
-    public VerifyEmailResonseDto sendEmail(String email) throws MessagingException {
+    public VerifyEmailResonse sendEmail(EmailRequest emailRequest) throws MessagingException {
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(emailRequest.getEmail())&&(emailRequest.getEmailType().equals("sign-up"))) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
+        }
+        if (emailRequest.getEmailType().equals("reset-password")) {
+            throw new RuntimeException("회원가입 시 적용하는 로직입니다.");
         }
 
         String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
         LocalDateTime createTime = LocalDateTime.now();
         LocalDateTime expireTime = LocalDateTime.now().plusMinutes(10);
 
-        emailUtil.sendEmail(email, randomNum);
+        emailUtil.sendEmail(emailRequest.getEmail(), randomNum);
 
-        VerifyEmailResonseDto verifyEmailResonseDto = VerifyEmailResonseDto.
+        VerifyEmailResonse verifyEmailResonse = VerifyEmailResonse.
                 builder()
                 .randomNum(randomNum)
                 .createTime(createTime)
                 .expireTime(expireTime)
                 .build();
 
-        return verifyEmailResonseDto;
+        return verifyEmailResonse;
 
     }
 
@@ -82,29 +87,29 @@ public class AuthService {
     }
 
 
-    public void verifyEmail(VerifyEmailRequestDto verifyEmailRequestDto) {
+    public void verifyEmail(VerifyEmailRequest verifyEmailRequest) {
 
-        if (userRepository.existsByEmail(verifyEmailRequestDto.getEmail())) {
+        if (userRepository.existsByEmail(verifyEmailRequest.getEmail())) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
-        if (!verifyEmailRequestDto.getRandomNum().equals(verifyEmailRequestDto.getInputNum())) {
+        if (!verifyEmailRequest.getRandomNum().equals(verifyEmailRequest.getInputNum())) {
             throw new RuntimeException("인증번호가 틀렸습니다.");
         }
-        if (verifyEmailRequestDto.getSendTime().isAfter(verifyEmailRequestDto.getExpireTime())) {
+        if (verifyEmailRequest.getSendTime().isAfter(verifyEmailRequest.getExpireTime())) {
             throw new RuntimeException("인증번호가 만료되었습니다.");
         }
     }
 
     @Transactional
-    public void signup(String email, String pw, MultipartFile multipartFile, String nickName) throws IOException {
+    public void signup(UserRequest userRequest) throws IOException {
         String socialId = UUID.randomUUID().toString().replace("-", "").substring(0, 13);
-        String password = passwordEncoder.encode(pw);
+        String password = passwordEncoder.encode(userRequest.getPassword());
         String url;
 
-        url = createProfileUrl(multipartFile);
+        url = defaultProfile;
 
-        User user = userRepository.findByNickName(nickName).get();
-        user.updateAll(email, password, socialId,url,Refrigerator_Cleaner.getKey());
+        User user = userRepository.findByNickName(userRequest.getNickName()).get();
+        user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
         userRepository.save(user);
         userRepository.deleteEverything();
     }
