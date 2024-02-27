@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
-import studybackend.refrigeratorcleaner.dto.UserRequestDto;
-import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
-import studybackend.refrigeratorcleaner.login.dto.LoginRequestDto;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
+import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
+import studybackend.refrigeratorcleaner.dto.request.UserRequest;
+import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
+import studybackend.refrigeratorcleaner.login.dto.LoginRequest;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.io.IOException;
@@ -25,21 +27,21 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/send-email")
-    public ResponseEntity<Object> sendEmail(@RequestBody HashMap<String, String> email) throws MessagingException {
-        return ResponseEntity.ok(authService.sendEmail(email.get("email")));
+    public ResponseEntity<Object> sendEmail(@RequestBody EmailRequest emailRequest) throws MessagingException {
+        return ResponseEntity.ok(authService.sendEmail(emailRequest));
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<Object> verifyEmail(@RequestBody VerifyEmailRequestDto verifyEmailRequestDto) {
+    public ResponseEntity<Object> verifyEmail(@RequestBody VerifyEmailRequest verifyEmailRequest) {
 
-        authService.verifyEmail(verifyEmailRequestDto);
+        authService.verifyEmail(verifyEmailRequest);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/resend-email")
-    public ResponseEntity<Object> reSendEmail(@RequestBody HashMap<String, String> email) throws MessagingException {
+    public ResponseEntity<Object> reSendEmail(@RequestBody EmailRequest emailRequest) throws MessagingException {
 
-        return ResponseEntity.ok(authService.sendEmail(email.get("email")));
+        return ResponseEntity.ok(authService.sendEmail(emailRequest));
 
     }
 
@@ -52,9 +54,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signup(@RequestPart(value = "file", required = false) MultipartFile multipartFile,@Valid @RequestPart(value = "userRequestDto") UserRequestDto userRequestDto) throws IOException {
+    public ResponseEntity<Object> signup(@Valid @RequestBody UserRequest userRequest) throws IOException {
 
-        authService.signup(userRequestDto.getEmail(), userRequestDto.getPassword(), multipartFile, userRequestDto.getNickName());
+        authService.signup(userRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -68,9 +70,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
 
-        log.info("email:{}",loginRequestDto.getEmail());
+        log.info("email:{}", loginRequest.getEmail());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
