@@ -67,10 +67,10 @@ public class AuthService {
     }
 
     private void validateEmail(EmailRequest emailRequest) {
-        if (userRepository.existsByEmail(emailRequest.getEmail()) && emailRequest.getEmailType().equals("sign-up")) {
+        if (userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("sign-up")) {
             throw new RuntimeException("이미 가입된 이메일입니다.");
         }
-        else if (!userRepository.existsByEmail(emailRequest.getEmail()) && emailRequest.getEmailType().equals("reset-password")) {
+        else if (!userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("reset-password")) {
             throw new RuntimeException("존재하지 않는 이메일입니다.");
         }
     }
@@ -93,7 +93,7 @@ public class AuthService {
 
     public void verifyEmail(VerifyEmailRequest verifyEmailRequest) {
 
-        if (userRepository.existsByEmail(verifyEmailRequest.getEmail())) {
+        if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
         if (!verifyEmailRequest.getRandomNum().equals(verifyEmailRequest.getInputNum())) {

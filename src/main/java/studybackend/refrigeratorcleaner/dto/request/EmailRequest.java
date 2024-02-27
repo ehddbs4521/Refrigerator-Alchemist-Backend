@@ -9,4 +9,6 @@ public class EmailRequest {
 
     private final String email;
     private final String emailType;
+    private final String socialType;
+
 }
