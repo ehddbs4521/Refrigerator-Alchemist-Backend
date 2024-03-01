@@ -22,3 +22,18 @@ spring:
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.type: trace  #sql 사용시 파라미터를 로그로 남긴다
+
+
+cloud:
+  aws:
+    s3:
+      bucket: refrigerator-cleaner
+    stack.auto: false
+    region.static: ap-northeast-2
+    credentials:
+      accessKey: AKIA3IV73HJFRA3CIQVS
+      secretKey: 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
+
+application:
+  bucket:
+    name: refrigerator-board

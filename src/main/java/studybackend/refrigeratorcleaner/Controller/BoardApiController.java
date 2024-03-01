@@ -22,6 +22,7 @@ public class BoardApiController {
 
         for (Board board : boards) {
             Map<String, Object> item = new HashMap<>();
+            item.put("ID", board.getId());
             item.put("Recipe", board.getTexts());
             item.put("nickName", board.getNickName());
             item.put("title", board.getTitle());
