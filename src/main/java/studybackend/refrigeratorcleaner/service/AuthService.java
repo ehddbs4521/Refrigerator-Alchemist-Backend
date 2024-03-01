@@ -92,8 +92,13 @@ public class AuthService {
 
     public void verifyEmail(VerifyEmailRequest verifyEmailRequest) {
 
-        if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())) {
+        if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
+                && verifyEmailRequest.getEmailType().equals("sign-up")) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
+        }
+        else if (!userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
+                && verifyEmailRequest.getEmailType().equals("reset-password")) {
+            throw new RuntimeException("존재하지 않는 이메일입니다.");
         }
         if (!verifyEmailRequest.getRandomNum().equals(verifyEmailRequest.getInputNum())) {
             throw new RuntimeException("인증번호가 틀렸습니다.");
@@ -138,7 +143,7 @@ public class AuthService {
             throw new RuntimeException("비밀번호를 재입력 해주세요.");
         }
 
-        if (resetPasswordRequest.getSocialType() != Refrigerator_Cleaner.getKey()) {
+        if (!resetPasswordRequest.getSocialType().equals(Refrigerator_Cleaner.getKey())) {
             throw new RuntimeException("자체 서비스 회원가입 시 만든 비밀번호만 변경 가능합니다.");
         }
 
