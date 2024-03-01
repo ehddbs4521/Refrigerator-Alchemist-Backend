@@ -16,7 +16,7 @@ import java.io.InputStream;
 @Transactional
 @RequiredArgsConstructor
 public class ImageService {
-
+//
     private final AmazonS3Client amazonS3Client;
 
     @Value("${application.bucket.name}")
