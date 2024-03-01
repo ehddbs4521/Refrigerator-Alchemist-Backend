@@ -77,7 +77,7 @@ public class BoardController {
 
             LikeCheck l = lService.getLikeCheck(likeDto);
             //LikeCheck l = new LikeCheck(lDto.getNickName(),lDto.getTitle(),lDto.getClickerName());
-            lService.logLikeCheck(l);
+            lService.logLikeCheck(l);//
         }
         return "home";
     }
