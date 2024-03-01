@@ -42,7 +42,7 @@ public class AuthService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @Value("default.profile")
+    @Value("${default.profile}")
     private String defaultProfile;
 
     public VerifyEmailResonse sendEmail(EmailRequest emailRequest) throws MessagingException {
@@ -77,11 +77,10 @@ public class AuthService {
 
     @Transactional
     public void verifyNickName(String nickName) {
-
+        userRepository.deleteEverything();
         if (userRepository.existsByNickName(nickName)) {
             throw new RuntimeException("이미 존재하는 닉네임입니다.");
         }
-        log.info("{}", nickName);
         User user=User.builder()
                 .nickName(nickName)
                 .role(Role.USER.getKey())
@@ -115,7 +114,6 @@ public class AuthService {
         User user = userRepository.findByNickName(userRequest.getNickName()).get();
         user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
         userRepository.save(user);
-        userRepository.deleteEverything();
     }
 
     private String createProfileUrl(MultipartFile multipartFile) throws IOException {
