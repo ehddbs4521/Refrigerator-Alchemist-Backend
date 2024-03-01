@@ -1,17 +1,15 @@
 package studybackend.refrigeratorcleaner.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "like_check")
 @Getter
-@Setter
+@Builder
+//@Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeCheck { //한 사람이 하나의 게시글에 중복해서 '좋아요'를 누르지 못하게 체크하는 테이블
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +24,13 @@ public class LikeCheck { //한 사람이 하나의 게시글에 중복해서 '�
 
     @Column(name = "clicker_name") //좋아요 누른 사람
     private String clickerName;
+
+
+    @Builder
+    public  LikeCheck (String nickName,String title,String clickerName) {
+        this.nickName = nickName;
+        this.title = title;
+        this.clickerName = clickerName;
+
+    }
 }

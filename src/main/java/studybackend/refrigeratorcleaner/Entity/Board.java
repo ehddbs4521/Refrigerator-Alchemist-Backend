@@ -2,18 +2,16 @@ package studybackend.refrigeratorcleaner.Entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "board")
 @Getter
-@Setter
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +32,12 @@ public class Board {
 
     @Column(name = "like_count") //게시글 좋아요 수
     private int likeCount ;
-
-
+    @Builder
+    public Board(String email,String nickName,String title,String texts,int likeCount){
+        this.email = email;
+        this.nickName = nickName;
+        this.title = title;
+        this.texts = texts;
+        this.likeCount = likeCount;
+    }
 }

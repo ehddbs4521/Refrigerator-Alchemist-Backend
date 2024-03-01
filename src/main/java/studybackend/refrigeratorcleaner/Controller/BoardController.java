@@ -18,6 +18,7 @@ import studybackend.refrigeratorcleaner.Form.LoginForm;
 import studybackend.refrigeratorcleaner.Service.BoardService;
 import studybackend.refrigeratorcleaner.Service.LikeCheckService;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
+import studybackend.refrigeratorcleaner.dto.LikeDto;
 
 import java.util.List;
 
@@ -40,25 +41,27 @@ public class BoardController {
     public String writeContent(HttpServletRequest request) {return "writeContent";}
 
     @PostMapping(value = "/content/write")//작성한 게시글을 저장
-    public String postWriteContent(Board board, BoardContent boardContent) {
-        System.out.println("good");
+    public String postWriteContent(@RequestBody BoardDto board) {
+        //System.out.println("good");
 //        Board newBoard = Board.builder()
 //                .email("test@naver.com")
 //                .nickName("test")
 //                .likeCount(0)
 //                .title(board.getTitle())  // 기존 board의 title을 가져옴
 //                .build();
-        board.setEmail("delTest@naver.com");
-        boardContent.setEmail("delTest@naver.com");
-        board.setLikeCount(0);
-        board.setNickName("delTest");
-        boardContent.setNickName("delTest");
-        bService.saveBoard(board);
-        bService.saveBoardContent(boardContent);
+//        board.setEmail("delTest@naver.com");
+//        boardContent.setEmail("delTest@naver.com");
+//        board.setLikeCount(0);
+//        board.setNickName("delTest");
+//        boardContent.setNickName("delTest");
+//        bService.saveBoard(board);
+//        bService.saveBoardContent(boardContent);
+        Board boarEntity =  bService.getBoarEntity(board);
+        bService.saveBoard(boarEntity);
         return "redirect:/board";
     }
     @GetMapping (value = "board/likeApi") // 좋아요 누르기
-    public String clickLike() {
+    public String clickLike(@RequestBody LikeDto likeDto) {
 
         String nickName = "test";
         String title = "jxckmnjv";
@@ -67,13 +70,13 @@ public class BoardController {
         if(lService.verifyDoubleLike(nickName,title,clickerName).size()==0){
             //좋아요 클릭할 게시물의 제목으로 검색해 가져옴
             List<Board> boards =  bService.searchBoard(title);
-            boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
+            //boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
+            boards.get(0).builder().likeCount(boards.get(0).getLikeCount()+1).build();//좋아요 1증가
             bService.updateBoard(boards.get(0)); //변경된 좋아요 수를 db에 반영
 
-            LikeCheck l = new LikeCheck();
-            l.setNickName(nickName);
-            l.setTitle(title);
-            l.setClickerName(clickerName);
+
+            LikeCheck l = lService.getLikeCheck(likeDto);
+            //LikeCheck l = new LikeCheck(lDto.getNickName(),lDto.getTitle(),lDto.getClickerName());
             lService.logLikeCheck(l);
         }
         return "home";

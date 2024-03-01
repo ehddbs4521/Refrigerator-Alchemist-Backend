@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +39,8 @@ public class BoardApiController {
         result.put("items", items);
         return result;
     }
-    @GetMapping(value = "board/apiTest") //최신순으로 출력
+    @GetMapping(value = "board/apiTest")
+    //@CrossOrigin(origins =  "board/apiTest") //최신순으로 출력
     public  Map<String, List<Map<String, Object>>> getContent(){
 
         List<Board> boards = boardService.getBoard();

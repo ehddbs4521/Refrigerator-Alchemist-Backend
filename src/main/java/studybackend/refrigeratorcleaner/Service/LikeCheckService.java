@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Repository.LikeCheckRepository;
+import studybackend.refrigeratorcleaner.dto.LikeDto;
 
 import java.util.List;
 
@@ -25,5 +26,13 @@ public class LikeCheckService {
     }
     public  List<Board> getMyLikeList (String nickName,String title) {
         return likeRepo.getMyLikeList(nickName,title);
+    }
+    public LikeCheck getLikeCheck(LikeDto l){
+        LikeCheck  like =  LikeCheck.builder().
+                nickName(l.getNickName()).
+                title(l.getTitle()).
+                clickerName(l.getClickerName()).
+                build();
+        return like;
     }
 }

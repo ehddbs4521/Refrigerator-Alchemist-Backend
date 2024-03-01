@@ -8,6 +8,7 @@ import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.BoardContent;
 import studybackend.refrigeratorcleaner.Repository.BoardRepository;
 import studybackend.refrigeratorcleaner.Repository.DeleteUser;
+import studybackend.refrigeratorcleaner.dto.BoardDto;
 
 import java.util.List;
 
@@ -31,5 +32,15 @@ public class BoardService {
         // 닉네임으로 게시글 삭제
         public List<Board> myList(String nickName) {
                 return  bRepository.myList(nickName);
+        }
+        public Board  getBoarEntity(BoardDto b){
+                Board board = Board.builder().
+                        email(b.getEmail()).
+                        nickName(b.getNickName()).
+                        title(b.getTitle()).
+                        texts(b.getTexts()).
+                        likeCount(b.getLikeCount()).
+                        build();
+                return board;
         }
  }
