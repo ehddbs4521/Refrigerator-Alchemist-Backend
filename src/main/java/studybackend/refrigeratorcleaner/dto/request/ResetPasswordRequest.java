@@ -20,8 +20,8 @@ public class ResetPasswordRequest {
     private String socialType;
 
     @NotNull
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{10,15}$",
-            message = "비밀번호는 문자, 숫자, 특수문자를 포함하여 10자리 이상 15자리 이하이어야 합니다.")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,15}$",
+            message = "비밀번호는 문자, 숫자, 특수문자를 포함하여 8자리 이상 15자리 이하이어야 합니다.")
     private String password;
 
     @NotNull
