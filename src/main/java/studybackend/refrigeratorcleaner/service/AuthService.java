@@ -118,7 +118,7 @@ public class AuthService {
 
         url = defaultProfile;
 
-        User user = userRepository.findByNickName(userRequest.getNickName()).get();
+        User user = userRepository.findByNickName(userRequest.getNickName()).orElseThrow(()->new CustomException(EXIST_USER_NICKNAME));
         user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
         userRepository.save(user);
     }
