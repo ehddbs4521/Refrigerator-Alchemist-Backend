@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
 import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 @Slf4j
+@RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -65,14 +67,6 @@ public class AuthController {
     public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         authService.resetPassword(resetPasswordRequest);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
-
-        log.info("email:{}", loginRequest.getEmail());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
