@@ -142,11 +142,11 @@ public class AuthService {
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
 
         if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getRePassword())) {
-            throw new RuntimeException("비밀번호를 재입력 해주세요.");
+            throw new CustomException(WRONG_PASSWORD);
         }
 
         if (!resetPasswordRequest.getSocialType().equals(Refrigerator_Cleaner.getKey())) {
-            throw new RuntimeException("자체 서비스 회원가입 시 만든 비밀번호만 변경 가능합니다.");
+            throw new CustomException(NO_REFRIGERATOR_SOCIALTYPE);
         }
 
         userRepository.findBySocialTypeAndEmail(resetPasswordRequest.getSocialType(),resetPasswordRequest.getEmail())
