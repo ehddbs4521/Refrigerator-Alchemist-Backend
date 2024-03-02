@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import studybackend.refrigeratorcleaner.error.CustomException;
+
+import static studybackend.refrigeratorcleaner.error.ErrorCode.SEND_EMAIL_FAIL;
 
 @Component
 public class EmailUtil {
@@ -13,12 +16,13 @@ public class EmailUtil {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public void sendEmail(String email, String randomNum) throws MessagingException {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
-        mimeMessageHelper.setTo(email);
-        mimeMessageHelper.setSubject("냉장고 연금술사 이메일 인증");
-        mimeMessageHelper.setText("""
+    public void sendEmail(String email, String randomNum) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("냉장고 연금술사 이메일 인증");
+            mimeMessageHelper.setText("""
             <div>
                 <h1>냉장고 연금술사 이메일 인증</h1>
                 <p>안녕하세요!</p>
@@ -27,7 +31,11 @@ public class EmailUtil {
             </div>
             """.formatted(randomNum), true);
 
-        javaMailSender.send(mimeMessage);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new CustomException(SEND_EMAIL_FAIL);
+        }
+
     }
 
 

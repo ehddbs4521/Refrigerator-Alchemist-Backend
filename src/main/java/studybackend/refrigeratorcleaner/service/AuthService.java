@@ -10,13 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
 import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.request.UserRequest;
 import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
 import studybackend.refrigeratorcleaner.dto.response.VerifyEmailResonse;
 import studybackend.refrigeratorcleaner.entity.User;
-import studybackend.refrigeratorcleaner.dto.Role;
+import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
 
+import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
 import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Cleaner;
 
 
@@ -68,10 +70,10 @@ public class AuthService {
 
     private void validateEmail(EmailRequest emailRequest) {
         if (userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("sign-up")) {
-            throw new RuntimeException("이미 가입된 이메일입니다.");
+            throw new CustomException(EXIST_USER_EMAIL_SOCIALTYPE);
         }
         else if (!userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("reset-password")) {
-            throw new RuntimeException("존재하지 않는 이메일입니다.");
+            throw new CustomException(NO_EXIST_USER_EMAIL_SOCIALTYPE);
         }
     }
 
@@ -79,7 +81,7 @@ public class AuthService {
     public void verifyNickName(String nickName) {
         userRepository.deleteEverything();
         if (userRepository.existsByNickName(nickName)) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
+            throw new CustomException(EXIST_USER_NICKNAME);
         }
         User user=User.builder()
                 .nickName(nickName)
@@ -94,17 +96,17 @@ public class AuthService {
 
         if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
                 && verifyEmailRequest.getEmailType().equals("sign-up")) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new CustomException(EXIST_USER_EMAIL_SOCIALTYPE);
         }
         else if (!userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
                 && verifyEmailRequest.getEmailType().equals("reset-password")) {
-            throw new RuntimeException("존재하지 않는 이메일입니다.");
+            throw new CustomException(NO_EXIST_USER_EMAIL);
         }
         if (!verifyEmailRequest.getRandomNum().equals(verifyEmailRequest.getInputNum())) {
-            throw new RuntimeException("인증번호가 틀렸습니다.");
+            throw new CustomException(WRONG_CERTIFICATION_NUMBER);
         }
         if (verifyEmailRequest.getSendTime().isAfter(verifyEmailRequest.getExpireTime())) {
-            throw new RuntimeException("인증번호가 만료되었습니다.");
+            throw new CustomException(EXPIRE_CERTIFICATION_NUMBER);
         }
     }
 
@@ -148,9 +150,9 @@ public class AuthService {
         }
 
         userRepository.findBySocialTypeAndEmail(resetPasswordRequest.getSocialType(),resetPasswordRequest.getEmail())
-                .ifPresent(user -> {
+                .ifPresentOrElse(user -> {
                     user.updatePassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
                     userRepository.save(user);
-                });
+                },() -> new CustomException(NO_EXIST_USER_EMAIL_SOCIALTYPE));
     }
 }

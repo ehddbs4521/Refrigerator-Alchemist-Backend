@@ -7,7 +7,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
+
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_SOCIALID;
 
 
 @Service
@@ -19,7 +22,7 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(NO_EXIST_USER_SOCIALID));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getSocialId())

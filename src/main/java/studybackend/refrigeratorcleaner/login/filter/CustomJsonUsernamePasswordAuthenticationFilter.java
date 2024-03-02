@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -12,11 +11,14 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StreamUtils;
 import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EQUAL_JSON;
 
 @Slf4j
 public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -42,7 +44,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if(request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)  ) {
-            throw new AuthenticationServiceException("Authentication Content-Type not supported: " + request.getContentType());
+            throw new CustomException(NO_EQUAL_JSON);
         }
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);

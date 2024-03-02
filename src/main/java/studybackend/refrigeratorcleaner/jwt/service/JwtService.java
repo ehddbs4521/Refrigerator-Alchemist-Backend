@@ -10,11 +10,14 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
+
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_SOCIALID;
 
 @Service
 @Getter
@@ -142,7 +145,8 @@ public class JwtService {
                             user.updateRefreshToken(refreshToken);
                             userRepository.save(user); // 변경 사항을 저장
                         },
-                        () -> new Exception("일치하는 회원이 없습니다.")
+                        () -> new CustomException(NO_EXIST_USER_SOCIALID)
                 );
+
     }
 }
