@@ -1,13 +1,11 @@
 package studybackend.refrigeratorcleaner.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,12 +16,19 @@ public class MyRecipeDto {
 
     private String foodName;
 
-    private List<String> ingredients;
+    private String ingredientStr;
+
+    private List<String> ingredientList;
 
     @Builder
-    public MyRecipeDto(Long recipeId, String foodName, List<String> ingredients) {
+    public MyRecipeDto(Long recipeId, String foodName, String ingredientStr) {
         this.recipeId = recipeId;
         this.foodName = foodName;
-        this.ingredients = ingredients;
+        this.ingredientStr = ingredientStr;
+
+        this.ingredientList = new ArrayList<>();
+        for(String ingredient : ingredientStr.split("/")){
+            ingredientList.add(ingredient.trim());
+        }
     }
 }

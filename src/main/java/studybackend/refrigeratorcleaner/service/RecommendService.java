@@ -1,10 +1,14 @@
 package studybackend.refrigeratorcleaner.service;
 
-import studybackend.refrigeratorcleaner.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import studybackend.refrigeratorcleaner.dto.RecommendDto;
+import studybackend.refrigeratorcleaner.dto.gptDto.ChatRequest;
+import studybackend.refrigeratorcleaner.dto.gptDto.ChatResponse;
+import studybackend.refrigeratorcleaner.dto.gptDto.ImageRequest;
+import studybackend.refrigeratorcleaner.dto.gptDto.ImageResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +65,16 @@ public class RecommendService {
                 sb.append(", ");
         }
         String strIngredient = sb.toString();
+
+        //입력 받은 재료가 적절한 재료인지 검사
+//        String isCorrectStr = "입력값 : " + strIngredient
+//                + "\n입력값이 의미하는 것이 음식 재료를 뜻하는 단어가 아니거나 입력값 중 일반적으로 사람이 먹을 수 없는 것이 하나라도 있어? Yes. 또는 No.로만 대답하고 다른 문장은 아무것도 말하지마.";
+//
+//        String isCorrectResult = chat(isCorrectStr);
+//
+//        if (isCorrectResult.equals("Yes") || isCorrectResult.equals("Yes.")){
+//            throw new CustomException(ErrorCode.WRONG_INGREDIENT);
+//        }
 
         //음식 이름&재료 얻기
         String prompt = "재료: " + strIngredient + "\n이 재료들을 포함해서 만들 수 있는 요리 이름을 딱 한 가지 말하고 콜론(:)을 붙인 다음 그 요리에 필요한 재료들을 콤마(,)로 구분해서 알려줘. 모든 재료를 사용하지 않아도 괜찮아.\n"

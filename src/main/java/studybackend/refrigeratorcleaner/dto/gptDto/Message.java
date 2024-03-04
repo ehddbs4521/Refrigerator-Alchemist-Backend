@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.dto;
+package studybackend.refrigeratorcleaner.dto.gptDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
