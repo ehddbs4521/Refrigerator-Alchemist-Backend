@@ -38,9 +38,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String refreshToken = jwtService.generateRefreshToken(oAuth2User.getEmail());
                 user.updateRefreshToken(refreshToken);
                 userRepository.save(user);
-                response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-
+                response.setHeader("socialId", oAuth2User.getSocialId());
+                response.setHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
                 jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+                response.sendRedirect("localhost:3000/main");
 
             } else {
                 loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
@@ -57,10 +58,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         log.info("accesstoken:{}", accessToken);
         log.info("refreshtoken:{}", refreshToken);
-        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
-
+        log.info("socialId:{}",oAuth2User.getSocialId());
+        response.setHeader("socialId", oAuth2User.getSocialId());
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
         jwtService.updateRefreshToken(oAuth2User.getSocialId(), refreshToken);
+        response.sendRedirect("localhost:3000/main");
     }
 }
