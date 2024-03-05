@@ -14,7 +14,6 @@ import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
 import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.request.UserRequest;
 import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
-import studybackend.refrigeratorcleaner.login.dto.LoginRequest;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.io.IOException;
