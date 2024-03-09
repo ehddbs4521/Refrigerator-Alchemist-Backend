@@ -16,8 +16,10 @@ import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.request.UserRequest;
 import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
 import studybackend.refrigeratorcleaner.dto.response.VerifyEmailResonse;
+import studybackend.refrigeratorcleaner.entity.Token;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.repository.TokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
@@ -36,6 +38,7 @@ import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailUtil emailUtil;
     private final AmazonS3Client amazonS3Client;
@@ -68,7 +71,7 @@ public class AuthService {
 
     }
 
-    private void validateEmail(EmailRequest emailRequest) {
+    public void validateEmail(EmailRequest emailRequest) {
         if (userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("sign-up")) {
             throw new CustomException(EXIST_USER_EMAIL_SOCIALTYPE);
         }
@@ -119,8 +122,12 @@ public class AuthService {
         url = defaultProfile;
 
         User user = userRepository.findByNickName(userRequest.getNickName()).orElseThrow(()->new CustomException(EXIST_USER_NICKNAME));
+
         user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
+        Token token = new Token();
+        token.setUser(user);
         userRepository.save(user);
+        tokenRepository.save(token);
     }
 
     private String createProfileUrl(MultipartFile multipartFile) throws IOException {
