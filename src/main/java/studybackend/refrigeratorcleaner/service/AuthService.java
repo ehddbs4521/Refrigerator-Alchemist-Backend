@@ -125,9 +125,9 @@ public class AuthService {
 
         user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
         Token token = new Token();
-        token.setUser(user);
-        userRepository.save(user);
-        tokenRepository.save(token);
+        userRepository.saveAndFlush(user);
+        user.assignToken(token);
+        tokenRepository.saveAndFlush(token);
     }
 
     private String createProfileUrl(MultipartFile multipartFile) throws IOException {

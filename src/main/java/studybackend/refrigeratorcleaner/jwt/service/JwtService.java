@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.Token;
+import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
 import studybackend.refrigeratorcleaner.repository.TokenRepository;
@@ -130,7 +131,7 @@ public class JwtService {
                             Token token = user.getToken(); // User로부터 Token을 가져옵니다.
                             if (token != null) {
                                 token.updateTokens(accessToken, refreshToken);
-                                tokenRepository.save(token); // Token 엔터티에 변경 사항을 저장합니다.
+                                tokenRepository.saveAndFlush(token); // Token 엔터티에 변경 사항을 저장합니다.
                             } else {
                                 throw new CustomException(NO_EXIST_USER_TOKEN); // Token이 없는 경우 예외 처리
                             }
@@ -144,7 +145,15 @@ public class JwtService {
     public void removeRefreshToken(String accessToken) {
         Token tokenInfo = tokenRepository.findByAccessToken(accessToken)
                 .orElseThrow(() -> new CustomException(NO_EXIST_USER_ACCESSTOKEN));
+        User user = tokenInfo.getUser();
 
+        // First, remove the association between User and Token
+        if (user != null) {
+            user.setToken(null);
+            userRepository.saveAndFlush(user); // Update and flush immediately to avoid foreign key constraint violation
+        }
+
+        // Now that User entity is updated, it's safe to delete the Token
         tokenRepository.delete(tokenInfo);
     }
 
@@ -163,7 +172,7 @@ public class JwtService {
 
         String newAccessToken = generateAccessToken(reIssueRequest.getSocialId());
         refreshToken.get().updateAccessToken(newAccessToken);
-        tokenRepository.save(refreshToken.get());
+        tokenRepository.saveAndFlush(refreshToken.get());
 
         return newAccessToken;
     }

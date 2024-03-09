@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.Token;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
@@ -31,9 +32,11 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
         String socialId = extractUsername(authentication);
+
         User userInfo = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new CustomException(NO_EXIST_USER_SOCIALID));
         String email = userInfo.getEmail();
@@ -41,17 +44,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtService.generateAccessToken(socialId);
         String refreshToken = jwtService.generateRefreshToken(socialId);
 
-        userRepository.findBySocialId(socialId)
-                .ifPresentOrElse(user -> {
-                    Token token = user.getToken(); // User로부터 Token을 가져옵니다.
-                    if (token != null) {
-                        token.updateTokens(accessToken, refreshToken); // Token 엔터티를 업데이트합니다.
-                        tokenRepository.saveAndFlush(token); // 변경된 Token 엔터티를 저장하고 flush합니다.
-                    } else {
-                        throw new CustomException(NO_EXIST_USER_TOKEN); // 해당 User에 Token이 없으면 예외를 던집니다.
-                    }
-                }, () -> { throw new CustomException(NO_EXIST_USER_SOCIALID); }); // 해당 socialId를 가진 User가 없으면 예외를 던집니다.
-
+        updateToken(userInfo, accessToken, refreshToken);
 
         log.info("로그인에 성공하였습니다. 이메일 : {}", email);
         log.info("로그인에 성공하였습니다. AccessToken : {}", accessToken);
@@ -61,6 +54,23 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.setStatus(HttpStatus.OK.value());
 
     }
+    @Transactional
+    public void updateToken(User userInfo, String accessToken, String refreshToken) {
+        log.info("Updating token for user: {}", userInfo.getEmail());
+
+        Token token = userInfo.getToken();
+        if (token == null) {
+            token = new Token();
+            userInfo.assignToken(token);
+        }
+
+        token.updateTokens(accessToken, refreshToken);
+
+        tokenRepository.saveAndFlush(token);
+
+        userRepository.saveAndFlush(userInfo);
+    }
+
 
     private String extractUsername(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();

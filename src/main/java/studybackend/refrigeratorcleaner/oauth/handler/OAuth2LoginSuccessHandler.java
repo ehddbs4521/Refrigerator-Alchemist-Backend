@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_SOCIALID;
-import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_TOKEN;
 
 @Slf4j
 @Component
@@ -46,12 +45,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 User user = userRepository.findBySocialId(oAuth2User.getSocialId()).orElseThrow(() -> new CustomException(NO_EXIST_USER_SOCIALID));
                 Token token = user.getToken();
                 if (token == null) {
-                    throw new CustomException(NO_EXIST_USER_TOKEN);
+                    token = new Token();
+                    user.assignToken(token);
                 }
+
+                userRepository.saveAndFlush(user);
                 String accessToken = jwtService.generateAccessToken(oAuth2User.getSocialId());
                 String refreshToken = jwtService.generateRefreshToken(oAuth2User.getSocialId());
                 token.updateTokens(accessToken, refreshToken);
-                tokenRepository.save(token);
+                tokenRepository.saveAndFlush(token);
                 String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
                         .queryParam("email",oAuth2User.getEmail())
                         .queryParam("socialType",oAuth2User.getSocialType())
@@ -64,10 +66,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 response.setHeader("Authorization-Access", accessToken);
                 response.addCookie(createCookie("Authorization-Refresh", refreshToken));
                 response.setStatus(HttpStatus.OK.value());
+                response.sendRedirect(targetUrl);
 
 
             } else {
-                loginSuccess(request,response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
+                loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
             }
         } catch (Exception e) {
             throw e;
@@ -75,7 +78,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     }
 
-    private void loginSuccess(HttpServletRequest request,HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
 
         String accessToken = jwtService.generateAccessToken(oAuth2User.getSocialId());
         String refreshToken = jwtService.generateRefreshToken(oAuth2User.getSocialId());
@@ -93,6 +96,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setHeader("Authorization-Access", accessToken);
         response.addCookie(createCookie("Authorization-Refresh", refreshToken));
         response.setStatus(HttpStatus.OK.value());
+        response.sendRedirect(targetUrl);
+
 
     }
 
