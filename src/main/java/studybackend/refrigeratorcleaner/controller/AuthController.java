@@ -14,10 +14,13 @@ import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
 import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.request.UserRequest;
 import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
+import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
+import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RequestMapping("/auth")
@@ -26,6 +29,7 @@ import java.util.HashMap;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/send-email")
     public ResponseEntity<Object> sendEmail(@RequestBody EmailRequest emailRequest) throws MessagingException {
@@ -68,5 +72,23 @@ public class AuthController {
         authService.resetPassword(resetPasswordRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/token/logout")
+    public ResponseEntity<Object> logout(@RequestBody HashMap<String,String> accessToken) {
+
+        jwtService.removeRefreshToken(accessToken.get("accessToken"));
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/token/refresh")
+    public ResponseEntity<Object> refresh(@RequestBody ReIssueRequest reIssueRequest) {
+
+        String token = jwtService.validRefreshToken(reIssueRequest);
+        Map<String, String> accessToken = new HashMap<>();
+        accessToken.put("accessToken", token);
+
+        return ResponseEntity.ok(accessToken);
+
     }
 }
