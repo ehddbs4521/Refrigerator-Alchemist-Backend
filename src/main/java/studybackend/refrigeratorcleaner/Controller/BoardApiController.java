@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,6 +10,7 @@ import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Service.BoardService;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
 
+import java.awt.print.Pageable;
 import java.util.*;
 
 @RestController
@@ -42,7 +44,8 @@ public class BoardApiController {
     }
     @GetMapping(value = "board/apiTest")
     //@CrossOrigin(origins =  "board/apiTest") //최신순으로 출력
-    public  Map<String, List<Map<String, Object>>> getContent(){
+    public  Map<String, List<Map<String, Object>>>
+    getContent(){
 
         List<Board> boards = boardService.getBoard();
         Map<String, List<Map<String, Object>>> content =  makeApi(boards);

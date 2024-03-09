@@ -15,7 +15,10 @@ import java.util.List;
 public class MyPageService {
 
     private final MyPageRepository myPageRepository;
-//    public List<User> getUser(String nickName){
-//
-//    }
+    public List<User> getUser(String nickName){
+        return myPageRepository.getUser(nickName);
+    }
+    public void updateUser(User u){
+        myPageRepository.updateUser(u);
+    }
 }

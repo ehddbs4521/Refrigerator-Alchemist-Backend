@@ -18,4 +18,8 @@ public class MyPageRepository {
         return em.createQuery("select m from User m where m.nickName =: nickName", User.class)
                 .setParameter("nickName",nickName).getResultList();
     }
+    public void updateUser(User u){
+        em.merge(u);
+    }
+
 }

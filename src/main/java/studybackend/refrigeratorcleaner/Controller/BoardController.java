@@ -22,6 +22,7 @@ import studybackend.refrigeratorcleaner.Entity.LikeCheck;
 import studybackend.refrigeratorcleaner.Form.LoginForm;
 import studybackend.refrigeratorcleaner.Service.BoardService;
 
+import studybackend.refrigeratorcleaner.Service.ImageService;
 import studybackend.refrigeratorcleaner.Service.LikeCheckService;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
 import studybackend.refrigeratorcleaner.dto.LikeDto;
@@ -38,7 +39,7 @@ import java.util.Map;
 public class BoardController {
     private final BoardService bService ;
     private final LikeCheckService lService;
-    //private  final ImageService iService;
+    private  final ImageService iService;
 
     @GetMapping(value = "/board")
     public  String Board(HttpServletRequest request) {
@@ -78,17 +79,18 @@ public class BoardController {
     @PostMapping("/writeTest")
     public ResponseEntity<String> writeContent(HttpServletRequest request,@RequestParam Map<String, String> formData) throws IOException {
         MultipartFile image = ((MultipartHttpServletRequest) request).getFile("image");
-//        InputStream imageInputStream = null;
-//
-//        try { //InputStream으로 변환해주는 코드
-//            imageInputStream = image.getInputStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
-//        }
-        //iService.uploadImage(imageInputStream,"test");
+        InputStream imageInputStream = null;
+        String imageUrl  = "";
+        try { //InputStream으로 변환해주는 코드
+            imageInputStream = image.getInputStream();
+
+            imageUrl= iService.uploadImage(imageInputStream,"test");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
+        }
+
 
         String foodName = request.getParameter("foodName");
         String description = request.getParameter("description");
@@ -115,6 +117,7 @@ public class BoardController {
                     nickName("test").
                     title(foodName).
                     texts(description).
+                    imageUrl(imageUrl).
                     build();
             bService.saveBoard(b);
             //contentService.saveContent(image, foodName, description, ingredients);
