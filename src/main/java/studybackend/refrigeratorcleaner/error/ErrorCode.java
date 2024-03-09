@@ -24,7 +24,8 @@ public enum ErrorCode {
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST,"비밀번호를 재입력해주세요"),
     NO_REFRIGERATOR_SOCIALTYPE(HttpStatus.BAD_REQUEST,"자체 서비스 회원가입 시 만든 비밀번호만 변경 가능합니다."),
     SEND_EMAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 전송을 실패했습니다."),
-    NO_AUTHENTICATION_INFO(HttpStatus.BAD_REQUEST,"사용자 정보가 없습니다.")
+    NO_AUTHENTICATION_INFO(HttpStatus.BAD_REQUEST,"사용자 정보가 없습니다."),
+    NO_EXIST_USER_TOKEN(HttpStatus.NOT_FOUND,"TOKEN DB와 매핑 할 수 없습니다")
     ;
 
 
