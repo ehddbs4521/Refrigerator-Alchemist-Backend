@@ -2,10 +2,12 @@ package studybackend.refrigeratorcleaner.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import studybackend.refrigeratorcleaner.error.CustomException;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_AUTHENTICATION_INFO;
 
+@Component
 public class SecurityUtil {
 
     private SecurityUtil() {
