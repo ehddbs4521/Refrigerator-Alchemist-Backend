@@ -54,7 +54,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String refreshToken = jwtService.generateRefreshToken(oAuth2User.getSocialId());
                 token.updateTokens(accessToken, refreshToken);
                 tokenRepository.saveAndFlush(token);
-                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
+                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
                         .queryParam("email",oAuth2User.getEmail())
                         .queryParam("socialType",oAuth2User.getSocialType())
                         .queryParam("socialId",oAuth2User.getSocialId())
@@ -84,7 +84,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtService.generateRefreshToken(oAuth2User.getSocialId());
         jwtService.updateTokens(oAuth2User.getSocialId(), accessToken, refreshToken);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
                 .queryParam("email",oAuth2User.getEmail())
                 .queryParam("socialType",oAuth2User.getSocialType())
                 .queryParam("socialId",oAuth2User.getSocialId())
