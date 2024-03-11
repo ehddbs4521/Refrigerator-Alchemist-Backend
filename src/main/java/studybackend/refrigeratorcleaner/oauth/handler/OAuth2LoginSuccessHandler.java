@@ -57,7 +57,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
                         .queryParam("email",oAuth2User.getEmail())
                         .queryParam("socialType",oAuth2User.getSocialType())
-                        .queryParam("socialId",oAuth2User.getSocialId())
+                        .queryParam("nickName",user.getNickName())
                         .queryParam("accessToken", accessToken)
                         .build()
                         .encode(StandardCharsets.UTF_8)
