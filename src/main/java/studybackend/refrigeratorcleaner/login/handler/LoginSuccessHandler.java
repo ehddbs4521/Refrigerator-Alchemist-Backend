@@ -19,7 +19,6 @@ import studybackend.refrigeratorcleaner.repository.TokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_SOCIALID;
-import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_TOKEN;
 
 
 @Slf4j
