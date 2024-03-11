@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.Role;
-import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
-import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
-import studybackend.refrigeratorcleaner.dto.request.UserRequest;
-import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
+import studybackend.refrigeratorcleaner.dto.request.*;
 import studybackend.refrigeratorcleaner.dto.response.VerifyEmailResonse;
 import studybackend.refrigeratorcleaner.entity.Token;
 import studybackend.refrigeratorcleaner.entity.User;
@@ -28,6 +25,7 @@ import studybackend.refrigeratorcleaner.util.EmailUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -193,5 +191,25 @@ public class AuthService {
 
         String token = jwtService.validRefreshToken(refreshToken,socialId);
         return token;
+    }
+
+    @Transactional
+    public void changeNickName(ValidateNickName validateNickName) {
+        Optional<User> existNickName = userRepository.findByNickName(validateNickName.getPresentNickName());
+        Optional<User> changeNickName = userRepository.findByNickName(validateNickName.getChangeNickName());
+
+        if (existNickName.isEmpty()) {
+            throw new CustomException(NO_EXIST_USER_NICKNAME);
+        }
+        if (changeNickName.isEmpty()) {
+            User user = existNickName.get();
+            user.updateNickname(validateNickName.getChangeNickName());
+            userRepository.save(user);
+
+            return;
+        }
+
+        throw new CustomException(EXIST_USER_NICKNAME);
+
     }
 }
