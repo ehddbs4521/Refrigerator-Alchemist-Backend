@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.Token;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
-import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
 import studybackend.refrigeratorcleaner.repository.TokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
@@ -157,9 +156,9 @@ public class JwtService {
         tokenRepository.delete(tokenInfo);
     }
 
-    public String validRefreshToken(ReIssueRequest reIssueRequest) {
+    public String validRefreshToken(String token,String socialId) {
 
-        Optional<Token> refreshToken = tokenRepository.findByRefreshToken(reIssueRequest.getRefreshToken());
+        Optional<Token> refreshToken = tokenRepository.findByRefreshToken(token);
 
         if (!refreshToken.isPresent()) {
             throw new CustomException(NO_EXIST_USER_REFRESHTOKEN);
@@ -170,7 +169,7 @@ public class JwtService {
         }
 
 
-        String newAccessToken = generateAccessToken(reIssueRequest.getSocialId());
+        String newAccessToken = generateAccessToken(socialId);
         refreshToken.get().updateAccessToken(newAccessToken);
         tokenRepository.saveAndFlush(refreshToken.get());
 
