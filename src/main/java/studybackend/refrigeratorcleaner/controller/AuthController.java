@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
-import studybackend.refrigeratorcleaner.dto.request.ResetPasswordRequest;
-import studybackend.refrigeratorcleaner.dto.request.UserRequest;
-import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
+import studybackend.refrigeratorcleaner.dto.request.*;
 import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.service.AuthService;
@@ -76,7 +73,7 @@ public class AuthController {
     }
 
     @PostMapping("/token/logout")
-    public ResponseEntity<Object> logout(@RequestBody HashMap<String,String> accessToken) {
+    public ResponseEntity<Object> logout(@RequestBody HashMap<String, String> accessToken) {
 
         jwtService.removeRefreshToken(accessToken.get("accessToken"));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -91,5 +88,13 @@ public class AuthController {
         accessToken.put("accessToken", token);
 
         return ResponseEntity.ok(accessToken);
+    }
+
+    @PostMapping("/change-nickname")
+    public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickName validateNickName) {
+
+        authService.changeNickName(validateNickName);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
