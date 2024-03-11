@@ -1,6 +1,7 @@
 package studybackend.refrigeratorcleaner.controller;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,13 +83,13 @@ public class AuthController {
     }
 
     @PostMapping("/token/refresh")
-    public ResponseEntity<Object> refresh(@RequestBody ReIssueRequest reIssueRequest) {
+    public ResponseEntity<Object> refresh(HttpServletRequest request, @RequestBody(required = false) ReIssueRequest reIssueRequest) {
 
-        String token = jwtService.validRefreshToken(reIssueRequest);
+        String refreshToken = authService.validateCookie(request);
+        String token = authService.validateToken(refreshToken, reIssueRequest.getSocialId());
         Map<String, String> accessToken = new HashMap<>();
         accessToken.put("accessToken", token);
 
         return ResponseEntity.ok(accessToken);
-
     }
 }
