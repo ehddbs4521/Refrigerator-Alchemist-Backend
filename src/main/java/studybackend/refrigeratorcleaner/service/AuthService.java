@@ -197,16 +197,16 @@ public class AuthService {
     }
 
     @Transactional
-    public void changeNickName(ValidateNickName validateNickName) {
-        Optional<User> existNickName = userRepository.findByNickName(validateNickName.getPresentNickName());
-        Optional<User> changeNickName = userRepository.findByNickName(validateNickName.getChangeNickName());
+    public void changeNickName(ValidateNickNameRequest validateNickNameRequest) {
+        Optional<User> existNickName = userRepository.findByNickName(validateNickNameRequest.getPresentNickName());
+        Optional<User> changeNickName = userRepository.findByNickName(validateNickNameRequest.getChangeNickName());
 
         if (existNickName.isEmpty()) {
             throw new CustomException(NO_EXIST_USER_NICKNAME);
         }
         if (changeNickName.isEmpty()) {
             User user = existNickName.get();
-            user.updateNickname(validateNickName.getChangeNickName());
+            user.updateNickname(validateNickNameRequest.getChangeNickName());
             userRepository.save(user);
 
             return;

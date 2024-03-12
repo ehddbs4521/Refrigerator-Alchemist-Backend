@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ValidateNickName {
+public class ValidateNickNameRequest {
 
     private String presentNickName;
     private String changeNickName;

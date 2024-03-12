@@ -89,9 +89,9 @@ public class AuthController {
     }
 
     @PostMapping("/change-nickname")
-    public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickName validateNickName) {
+    public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickNameRequest validateNickNameRequest) {
 
-        authService.changeNickName(validateNickName);
+        authService.changeNickName(validateNickNameRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
