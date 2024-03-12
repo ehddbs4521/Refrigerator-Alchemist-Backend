@@ -41,9 +41,8 @@ public class User {
         this.role = Role.USER.getKey();
     }
 
-    public void updateNickname(String updateNickname) {
-        this.nickName = updateNickname;
-    }
+    public void updateNickname(String updateNickname) { this.nickName = updateNickname; }
+    public void updateProfile(String updateProfile) { this.imageUrl = updateProfile; }
 
     public void updatePassword(String updatePassword) {
         this.password = updatePassword;
