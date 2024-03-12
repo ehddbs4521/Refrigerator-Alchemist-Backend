@@ -7,10 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.request.*;
 import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
@@ -96,5 +94,15 @@ public class AuthController {
         authService.changeNickName(validateNickName);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/change-profile")
+    public ResponseEntity<Object> changeProfile(@RequestPart(value = "nickName") Map<String,String> nickName, @RequestPart(value = "file") MultipartFile multipartFile) throws IOException {
+
+        String updateProfileUrl = authService.updateProfileUrl(multipartFile, nickName.get("nickName"));
+        Map<String, String> profile = new HashMap<>();
+        profile.put("url", updateProfileUrl);
+
+        return ResponseEntity.ok(profile);
     }
 }
