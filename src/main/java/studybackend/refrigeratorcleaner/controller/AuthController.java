@@ -1,16 +1,19 @@
 package studybackend.refrigeratorcleaner.controller;
 
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.request.*;
-import studybackend.refrigeratorcleaner.jwt.dto.request.ReIssueRequest;
+import studybackend.refrigeratorcleaner.jwt.dto.request.SocialIdRequest;
+import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
@@ -55,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Object> signup(@Valid @RequestBody UserRequest userRequest) throws IOException {
+    public ResponseEntity<Object> signup(@Valid @RequestBody UserRequest userRequest){
 
         authService.signup(userRequest);
 
@@ -71,21 +74,20 @@ public class AuthController {
     }
 
     @PostMapping("/token/logout")
-    public ResponseEntity<Object> logout(@RequestBody HashMap<String, String> accessToken) {
+    public ResponseEntity<Object> logout(@CookieValue(name = "Authorization-Refresh") String refreshToken, @RequestBody SocialIdRequest socialIdRequest) {
 
-        jwtService.removeRefreshToken(accessToken.get("accessToken"));
+        authService.logout(refreshToken, socialIdRequest.getSocialId());
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/token/refresh")
-    public ResponseEntity<Object> refresh(HttpServletRequest request, @RequestBody(required = false) ReIssueRequest reIssueRequest) {
+    @PostMapping("/token/reissue")
+    public ResponseEntity<Object> refresh(@CookieValue(name = "Authorization-Refresh") String refreshToken, @RequestBody SocialIdRequest socialIdRequest, HttpServletResponse response) {
 
-        String refreshToken = authService.validateCookie(request);
-        String token = authService.validateToken(refreshToken, reIssueRequest.getSocialId());
-        Map<String, String> accessToken = new HashMap<>();
-        accessToken.put("accessToken", token);
+        TokenResponse tokenResponse = authService.validateToken(refreshToken, socialIdRequest.getSocialId());
+        jwtService.setTokens(response,tokenResponse.getAccessToken(),tokenResponse.getRefreshToken());
 
-        return ResponseEntity.ok(accessToken);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/change-nickname")
