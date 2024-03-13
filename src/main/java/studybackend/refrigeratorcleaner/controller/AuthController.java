@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.request.*;
@@ -50,9 +48,9 @@ public class AuthController {
     }
 
     @PostMapping("/verify-nickname")
-    public ResponseEntity<Object> verifyNickName(@RequestBody HashMap<String, String> nickName) {
+    public ResponseEntity<Object> verifyNickName(@RequestBody NickNameRequest nickNameRequest) {
 
-        authService.verifyNickName(nickName.get("nickName"));
+        authService.verifyNickName(nickNameRequest.getNickName());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -99,9 +97,9 @@ public class AuthController {
     }
 
     @PostMapping("/change-profile")
-    public ResponseEntity<Object> changeProfile(@RequestPart(value = "nickName") Map<String,String> nickName, @RequestPart(value = "file") MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<Object> changeProfile(@RequestPart(value = "nickName") NickNameRequest nickNameRequest, @RequestPart(value = "file") MultipartFile multipartFile) throws IOException {
 
-        String updateProfileUrl = authService.updateProfileUrl(multipartFile, nickName.get("nickName"));
+        String updateProfileUrl = authService.updateProfileUrl(multipartFile, nickNameRequest.getNickName());
         Map<String, String> profile = new HashMap<>();
         profile.put("url", updateProfileUrl);
 
