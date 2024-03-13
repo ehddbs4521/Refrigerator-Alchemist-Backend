@@ -28,6 +28,7 @@ import studybackend.refrigeratorcleaner.oauth.handler.OAuth2LoginSuccessHandler;
 import studybackend.refrigeratorcleaner.oauth.service.CustomOAuth2UserService;
 import studybackend.refrigeratorcleaner.repository.TokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.service.AuthService;
 
 @Slf4j
 @Configuration
@@ -37,6 +38,7 @@ public class SecurityConfig {
 
     private final LoginService loginService;
     private final JwtService jwtService;
+    private final AuthService authService;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final ObjectMapper objectMapper;
@@ -86,7 +88,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(jwtService, userRepository,tokenRepository);
+        return new LoginSuccessHandler(jwtService, authService, userRepository, tokenRepository);
     }
 
     @Bean
