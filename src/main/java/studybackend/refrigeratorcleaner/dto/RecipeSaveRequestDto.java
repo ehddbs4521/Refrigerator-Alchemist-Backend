@@ -1,6 +1,5 @@
 package studybackend.refrigeratorcleaner.dto;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,22 +12,27 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DetailRecipeDto {
+public class RecipeSaveRequestDto {
 
+    @NotBlank(message = "요리명은 필수 입력 값입니다.")
     private String foodName;
 
+    @NotNull
+    @Size(min = 1, message = "최소 1개 이상의 재료가 필요합니다.")
     private List<String> ingredients;
 
+    @NotNull
+    @Size(min = 1, message = "최소 한 줄 이상의 레시피가 필요합니다.")
     private List<String> recipe;
 
-    private String imgURL;
+    private Boolean imgFlag;
 
     @Builder
-    public DetailRecipeDto(String foodName, List<String> ingredients, List<String> recipe, String imgURL) {
+    public RecipeSaveRequestDto(String foodName, List<String> ingredients, List<String> recipe, Boolean imgFlag) {
         this.foodName = foodName;
         this.ingredients = ingredients;
         this.recipe = recipe;
-        this.imgURL = imgURL;
+        this.imgFlag = imgFlag;
     }
 
 

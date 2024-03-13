@@ -1,5 +1,6 @@
 package studybackend.refrigeratorcleaner.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

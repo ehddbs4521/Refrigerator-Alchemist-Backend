@@ -5,11 +5,18 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
+import studybackend.refrigeratorcleaner.dto.gptDto.ImageRequest;
+import studybackend.refrigeratorcleaner.dto.gptDto.ImageResponse;
 import studybackend.refrigeratorcleaner.entity.Recipe;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
@@ -34,6 +41,27 @@ public class RecipeService {
 
     @Value("${application.bucket.name}")
     private String bucketName;
+
+    @Value("${openai.model.image}")
+    private String imageModel;
+
+    @Value("${openai.api.url.image}")
+    private String imageApiURL;
+
+    @Autowired
+    private RestTemplate template;
+
+    //prompt에 맞는 이미지 생성
+    public String image(String prompt){
+        ImageRequest request = ImageRequest.builder()
+                .model(imageModel)
+                .prompt(prompt)
+                .build();
+
+        ImageResponse response = template.postForObject(imageApiURL, request, ImageResponse.class);
+
+        return response.getData().get(0).getUrl();
+    }
 
     //이미지 s3에 저장하고 이미지 url 반환
     public String uploadImage(String imageUrl, String keyName) throws IOException{
@@ -73,28 +101,37 @@ public class RecipeService {
     }
 
     //레시피 저장하기
-    public Long saveRecipe(DetailRecipeDto recipeDto, String socialId){
+    public Long saveRecipe(RecipeSaveRequestDto saveRequestDto, String socialId){
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NO_EXIST_USER_SOCIALID));
-        String fileName = UUID.randomUUID().toString().concat(recipeDto.getFoodName());
-        String S3imageUrl;
 
-        //이미지 s3에 저장
-        try{
-            S3imageUrl = uploadImage(recipeDto.getImgUrl(), fileName);
-        }catch (IOException e){
-            throw new IllegalArgumentException("이미지를 저장하는 중 에러가 발생하였습니다.");
+        String S3imageUrl = "";
+
+        //레시피 저장시 사진 생성이 참이면
+        if(saveRequestDto.getImgFlag() == true) {
+            //음식 사진 얻기
+            String imgPrompt = listToString(saveRequestDto.getIngredients()) + "을 사용해서 만든 " + saveRequestDto.getFoodName() +"의 사진을 생성해줘.";
+            String foodImgURL = image(imgPrompt);
+
+            String fileName = UUID.randomUUID().toString().concat(saveRequestDto.getFoodName());
+
+
+            //이미지 s3에 저장
+            try {
+                S3imageUrl = uploadImage(foodImgURL, fileName);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("이미지를 저장하는 중 에러가 발생하였습니다.");
+            }
         }
 
         //recipeDto의 List<String> 형식 recipe를 String으로 변환
-
-
         Recipe recipe = Recipe.builder()
-                .foodName(recipeDto.getFoodName())
-                .ingredientStr(listToString(recipeDto.getIngredients()))
-                .recipeStr(listToString(recipeDto.getRecipe()))
+                .user(user)
+                .foodName(saveRequestDto.getFoodName())
+                .ingredientStr(listToString(saveRequestDto.getIngredients()))
+                .recipeStr(listToString(saveRequestDto.getRecipe()))
                 .imgURL(S3imageUrl)
-                .user(user).build();
+                .build();
 
         recipeRepository.save(recipe);
 
@@ -103,10 +140,10 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     //레시피 목록 조회하기
-    public List<MyRecipeDto> getRecipeList(String socialId) {
-        List<MyRecipeDto> myRecipeDtoList = recipeRepository.findRecipeDtoList(socialId);
+    public Page<MyRecipeDto> getRecipeList(String socialId, Pageable pageable) {
+        Page<MyRecipeDto> myRecipeDtoPage = recipeRepository.getRecipeDtoPage(socialId, pageable);
 
-        return myRecipeDtoList;
+        return myRecipeDtoPage;
     }
 
     @Transactional(readOnly = true)
@@ -117,8 +154,8 @@ public class RecipeService {
         DetailRecipeDto detailRecipeDto = DetailRecipeDto.builder()
                 .ingredients(StringToList(recipe.getIngredientStr()))
                 .recipe(StringToList(recipe.getRecipeStr()))
-                .imgUrl(recipe.getImgURL())
                 .foodName(recipe.getFoodName())
+                .imgURL(recipe.getImgURL()) //null 설정될 수 있음.
                 .build();
 
         return detailRecipeDto;

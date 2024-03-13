@@ -1,12 +1,16 @@
 package studybackend.refrigeratorcleaner.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.service.RecipeService;
@@ -14,6 +18,7 @@ import studybackend.refrigeratorcleaner.service.RecipeService;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +29,7 @@ public class RecipeController {
 
     //이 레시피 저장 클릭시
     @PostMapping(value = "/recipe/save")
-    public @ResponseBody ResponseEntity saveRecipe(@RequestBody DetailRecipeDto recipeDto, BindingResult bindingResult, Principal principal){
+    public @ResponseBody ResponseEntity saveRecipe(@RequestBody RecipeSaveRequestDto saveRequestDto, BindingResult bindingResult, Principal principal){
 
         //로그인한 사용자인지 검사
         if (principal.getName() == null){
@@ -36,7 +41,7 @@ public class RecipeController {
 
         //레시피 저장 수행
         try{
-            recipeId = recipeService.saveRecipe(recipeDto, socialId);
+            recipeId = recipeService.saveRecipe(saveRequestDto, socialId);
         }catch (Exception e){
             throw new CustomException(ErrorCode.SAVE_RECIPE_FAIL);
         }
@@ -45,25 +50,26 @@ public class RecipeController {
     }
 
     //저장한 레시피 간단목록
-    @GetMapping("/recipe/myRecipe")
-    public @ResponseBody ResponseEntity myRecipeList(Principal principal) {
+    @GetMapping(value = "/recipe/myRecipe/{page}")
+    public @ResponseBody ResponseEntity myRecipeList(@PathVariable("page") Optional<Integer> page, Principal principal) {
 
         //로그인한 사용자인지 검사
         if (principal.getName() == null){
             throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
         }
 
+        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 10);
         String socialId = principal.getName();
-        List<MyRecipeDto> myRecipeDtoList;
+        Page<MyRecipeDto> myRecipeDtoPage;
 
         //레시피 목록 List<MyRecipeDto> 형태로 가져오기
         try {
-            myRecipeDtoList = recipeService.getRecipeList(socialId);
+            myRecipeDtoPage = recipeService.getRecipeList(socialId, pageable);
         }catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_GET_RECIPE_LIST);
         }
 
-        return new ResponseEntity<List<MyRecipeDto>>(myRecipeDtoList, HttpStatus.OK);
+        return new ResponseEntity<Page<MyRecipeDto>>(myRecipeDtoPage, HttpStatus.OK);
     }
 
     //저장한 레시피 상세페이지
@@ -92,6 +98,8 @@ public class RecipeController {
         return new ResponseEntity<DetailRecipeDto>(detailRecipeDto, HttpStatus.OK);
     }
 
+    /////////////////////////////////////////IP 테스트 전용 컨트롤러 ////////////////////////////////////////////////
+
     @GetMapping(value = "/recipe/save")
     public @ResponseBody ResponseEntity saveRecipe(){
 
@@ -110,21 +118,51 @@ public class RecipeController {
         recipeList.add("4. 청양고추와 대파를 넣고 소금, 고추가루를 넣어 맛을 조절한다.");
         recipeList.add("5. 마지막으로 국간장을 조금 넣고 한소끔 더 끓인 후, 맛있게 드세요!");
 
-        DetailRecipeDto recipeDto = DetailRecipeDto.builder()
+        RecipeSaveRequestDto saveRequestDto = RecipeSaveRequestDto.builder()
                 .recipe(recipeList)
                 .ingredients(ingredientList)
-                .imgUrl("https://ibb.co/0nQPBqq")
                 .foodName("김치찌개")
+                .imgFlag(false)
                 .build();
 
         String socialId = "MySocialId" ;// 워크벤치에서 테스트 유저 만들기
         Long recipeId;
         try{
-            recipeId = recipeService.saveRecipe(recipeDto, socialId);
+            recipeId = recipeService.saveRecipe(saveRequestDto, socialId);
         }catch (Exception e){
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<Long>(recipeId, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/MyRecipe")
+    public @ResponseBody ResponseEntity myRecipe() {
+        Pageable pageable = PageRequest.of(1, 10);
+        Page<MyRecipeDto> myRecipeDtoPage;
+
+        //레시피 목록 List<MyRecipeDto> 형태로 가져오기
+        try {
+            myRecipeDtoPage = recipeService.getRecipeList("MySocialId", pageable);
+        }catch (Exception e){
+            throw new CustomException(ErrorCode.FAILED_TO_GET_RECIPE_LIST);
+        }
+
+        return new ResponseEntity<Page<MyRecipeDto>>(myRecipeDtoPage, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/myRecipe/{recipeId}")
+    public @ResponseBody ResponseEntity detailRecipePage(@PathVariable("recipeId") Long recipeId) {
+
+        DetailRecipeDto detailRecipeDto;
+
+        //해당 레시피의 상세 정보를 DetailRecipeDto 형태로 가져온다.
+        try{
+            detailRecipeDto = recipeService.getDetailRecipe(recipeId);
+        }catch (Exception e){
+            throw new CustomException(ErrorCode.FAILED_TO_GET_DETAIL_RECIPE);
+        }
+
+        return new ResponseEntity<DetailRecipeDto>(detailRecipeDto, HttpStatus.OK);
     }
 }

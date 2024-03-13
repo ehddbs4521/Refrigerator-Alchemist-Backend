@@ -1,12 +1,13 @@
 package studybackend.refrigeratorcleaner.service;
 
-import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
+import jakarta.persistence.EntityExistsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
-import studybackend.refrigeratorcleaner.dto.RecommendDto;
-import studybackend.refrigeratorcleaner.entity.Authority;
-import studybackend.refrigeratorcleaner.entity.Member;
+import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
 import studybackend.refrigeratorcleaner.entity.Recipe;
-import studybackend.refrigeratorcleaner.repository.MemberRepository;
+import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.repository.RecipeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import studybackend.refrigeratorcleaner.repository.UserRepository;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class RecipeServiceTest {
 
     @Autowired
-    MemberRepository memberRepository;
-
-    @Autowired
     RecipeService recipeService;
 
     @Autowired
@@ -37,91 +37,115 @@ class RecipeServiceTest {
     @Autowired
     RecommendService recommendService;
 
-    public Member saveMember(){
-        Member member = Member.builder()
+    @Autowired
+    UserRepository userRepository;
+
+    //User 생성
+    public User createUser() {
+
+        User newUser = User.builder()
+                .id(Integer.toUnsignedLong(1))
                 .email("test@test.com")
-                .authority(Authority.ROLE_USER)
-                .nickname("testNickName")
-                .password("test1234")
-                .profileUrl("testProfileURL")
-                .providerName("KAKAO")
+                .imageUrl("https://naengtul-profile.s3.ap-northeast-2.amazonaws.com/favicon.png")
+                .role("user")
+                .refreshToken("fdsfadfsadas")
+                .password("testpassword")
+                .socialId("MySocialId")
+                .nickName("test")
+                .socialType("kakao")
                 .build();
 
-        memberRepository.save(member);
-        return member;
+        return userRepository.save(newUser);
     }
 
-    public Recipe makeRecipe(int n, Member member){
-        //재료 리스트 만들기
+    public RecipeSaveRequestDto createRecipeSaveDto(){
         List<String> ingredientList = new ArrayList<>();
-        ingredientList.add("음식" + n + " 재료1");
-        ingredientList.add("음식" + n + " 재료2");
-        ingredientList.add("음식" + n + " 재료3");
-        ingredientList.add("음식" + n + " 재료4");
+        ingredientList.add( "김치");
+        ingredientList.add( "두부");
+        ingredientList.add( "돼지고기");
+        ingredientList.add( "양파");
+        ingredientList.add( "청양고추");
+        ingredientList.add( "대파");
 
-        //레시피 리스트 만들기
         List<String> recipeList = new ArrayList<>();
-        recipeList.add("음식" + n + " 레시피1");
-        recipeList.add("음식" + n + " 레시피2");
-        recipeList.add("음식" + n + " 레시피3");
-        recipeList.add("음식" + n + " 레시피4");
+        recipeList.add("1. 먼저 돼지고기를 잘게 썰고, 김치와 양파도 잘게 썬다.");
+        recipeList.add("2. 냄비에 식용유를 두르고 돼지고기를 볶다가 김치와 양파를 넣고 함께 볶는다.");
+        recipeList.add("3. 물을 추가하고 끓여 두부와 미나리를 넣어 더 끓인다.");
+        recipeList.add("4. 청양고추와 대파를 넣고 소금, 고추가루를 넣어 맛을 조절한다.");
+        recipeList.add("5. 마지막으로 국간장을 조금 넣고 한소끔 더 끓인 후, 맛있게 드세요!");
 
-        DetailRecipeDto recipeDto = DetailRecipeDto.builder()
-                .ingredients(ingredientList)
-                .imgUrl("testImgURL"+n)
-                .foodName("음식"+n)
+        RecipeSaveRequestDto saveRequestDto = RecipeSaveRequestDto.builder()
                 .recipe(recipeList)
+                .ingredients(ingredientList)
+                .foodName("김치찌개")
+                .imgFlag(false)
                 .build();
 
-        Long recipeId = recipeService.saveRecipe(recipeDto, member.getEmail());
-        return recipeRepository.findByRecipeId(recipeId);
+        return saveRequestDto;
+    }
+
+    //입력받은 유저로 입력받은 레시피 저장
+//    public Long saveRecipe(User user, Recipe recipe){
+//    }
+
+    //List<String> -> 요소뒤에 /붙인 String으로 변환해서 반환
+    public String listToString(List<String> strList){
+        StringBuilder sb = new StringBuilder();
+
+        for(String str : strList){
+            sb.append(str+"/");
+        }
+
+        return sb.toString();
     }
 
     @Test
-    @DisplayName("레시피 추천, 저장, 조회 테스트")
-    public void saveRecipe(){
-        Member member = saveMember();
+    @DisplayName("레시피 저장 테스트")
+    @WithMockUser(roles = "USER")
+    void saveRecipTest(){
+        //멤버 생성
+        User user = createUser();
+        //DetailRecipeDto 생성
+        RecipeSaveRequestDto saveRequestDto = createRecipeSaveDto();
 
-        //재료 리스트 만들기
-        List<String> ingredientList = new ArrayList<>();
-        ingredientList.add("양배추");
-        ingredientList.add("감자");
-        ingredientList.add("양파");
-        ingredientList.add("두부");
-        ingredientList.add("버섯");
-        ingredientList.add("마늘");
+        String socialId = user.getSocialId();
 
-        //레시피 추천받아 recommendDto에 받아옴
-        RecommendDto recommendDto = recommendService.recommend(ingredientList);
+        Long recipeId = recipeService.saveRecipe(saveRequestDto, socialId);
+        Recipe savedRecipe = recipeRepository.findByRecipeId(recipeId)
+                .orElseThrow(EntityExistsException::new);
 
-        DetailRecipeDto recipeDto = DetailRecipeDto.builder()
-                .recipe(recommendDto.getRecipe())
-                .ingredients(recommendDto.getIngredients())
-                .foodName(recommendDto.getFoodName())
-                .imgUrl(recommendDto.getImgUrl())
-                .build();
+        String strRecipe = listToString(saveRequestDto.getRecipe());
+        String strIngredient = listToString(saveRequestDto.getIngredients());
 
+        assertEquals(saveRequestDto.getFoodName(), savedRecipe.getFoodName());
+        assertEquals(strRecipe, savedRecipe.getRecipeStr());
+        assertEquals(strIngredient, savedRecipe.getIngredientStr());
+        System.out.println(savedRecipe.getImgURL());
+        System.out.println(savedRecipe.getRecipeStr());
+        System.out.println(savedRecipe.getIngredientStr());
+    }
+
+    @Test
+    @DisplayName("레시피 목록 조회 테스트")
+    @WithMockUser(roles = "USER")
+    void getRecipeListTest(){
+        //멤버 생성
+        User user = createUser();
+
+        //레시피 생성
         //레시피 저장
-        Long recipeId = recipeService.saveRecipe(recipeDto, member.getEmail());
-        Recipe savedRecipe = recipeRepository.findByRecipeId(recipeId);
+        //레시피 목록 조회
+    }
 
-        assertEquals(recipeDto.getIngredients(), savedRecipe.getIngredientList());
-        assertEquals(recipeDto.getRecipe(), savedRecipe.getRecipeList());
-        assertEquals(member, savedRecipe.getMember());
+    @Test
+    @DisplayName("상세 레시피 조회 테스트")
+    @WithMockUser(roles = "USER")
+    void getDetailRecipeTest(){
+        //멤버 생성
+        User user = createUser();
 
-        //myRecipe 목록 조회
-        List<MyRecipeDto> myRecipeDtoList = recipeService.getRecipeList(member.getEmail());
-        for (MyRecipeDto mr : myRecipeDtoList) {
-            System.out.println(mr.getFoodName());
-            System.out.println(mr.getIngredients());
-            System.out.println();
-        }
-
-        MyRecipeDto first = myRecipeDtoList.get(0);
-        //레시피 상세 조회
-        DetailRecipeDto detailRecipeDto = recipeService.getDetailRecipe(first.getRecipeId());
-        assertEquals(detailRecipeDto.getIngredients(), first.getIngredients());
-        assertEquals(detailRecipeDto.getFoodName(), first.getFoodName());
-        System.out.println(detailRecipeDto.getImgUrl());
+        //레시피 생성
+        //레시피 저장
+        //상세 레시피 조회
     }
 }

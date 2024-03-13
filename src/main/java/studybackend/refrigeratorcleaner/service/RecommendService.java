@@ -20,14 +20,8 @@ public class RecommendService {
     @Value("${openai.model.chat}")
     private String chatModel;
 
-    @Value("${openai.model.image}")
-    private String imageModel;
-
     @Value("${openai.api.url.chat}")
     private String chatApiURL;
-
-    @Value("${openai.api.url.image}")
-    private String imageApiURL;
 
     @Autowired
     private RestTemplate template;
@@ -38,18 +32,6 @@ public class RecommendService {
         ChatResponse response = template.postForObject(chatApiURL, request, ChatResponse.class);
 
         return response.getChoices().get(0).getMessage().getContent();
-    }
-    
-    //prompt에 맞는 이미지 생성
-    public String image(String prompt){
-        ImageRequest request = ImageRequest.builder()
-                .model(imageModel)
-                .prompt(prompt)
-                .build();
-
-        ImageResponse response = template.postForObject(imageApiURL, request, ImageResponse.class);
-
-        return response.getData().get(0).getUrl();
     }
 
     public RecommendDto recommend(List<String> ingredients){
@@ -87,20 +69,15 @@ public class RecommendService {
         }
 
         //레시피 얻기
-        String recipePrompt = "자 이제 " + foodName + " 레시피를 알려줘. 가지고 있는 재료는 " + result[1] + "이야. 레시피를 알려줄 때는 최대한 자세하게 알려주고 만드는 순서에 따라 문장 앞에 번호를 붙여 출력해줘. 그리고 마지막에 \"맛있게 드세요!\"로 출력을 마무리 해줘."
+        String recipePrompt = "자 이제 " + foodName + " 레시피를 알려줘. 가지고 있는 재료는 " + result[1] + "이야. 레시피를 알려줄 때는 최대한 자세하게 알려주고 만드는 순서에 따라 문장 앞에 번호를 붙여 출력해줘. 그리고 마지막 문장은 \"맛있게 드세요!\"로 출력을 마무리 해줘."
                 + "예를 들어 \"1.마늘을 다지고 파를 썰어준다 2.계란을 후라이팬에 반쯤 익히고 다진 마늘과 썬 파를 넣는다 3.진간장을 3숟갈 계란 후라이에 넣는다 4.맛있게 드세요!\" 이렇게 해 줘. 레시피를 알려줄 때, 내가 지정한 형식으로만 출력하고 다른 문장은 절대 출력하지마.";
         String[] recipeArr = chat(recipePrompt).split("\n");
         List<String> recipe = Arrays.asList(recipeArr);
-
-        //음식 사진 얻기
-        String imgPrompt = "자 이제 " + result[1] + "을 사용해서 만든 " + foodName +"의 사진을 생성해줘.";
-        String foodImgURL = image(imgPrompt);
 
         RecommendDto recommendDto = RecommendDto.builder()
                 .recipe(recipe)
                 .foodName(foodName)
                 .ingredients(foodIngredients)
-                .imgUrl(foodImgURL)
                 .build();
 
         return recommendDto;

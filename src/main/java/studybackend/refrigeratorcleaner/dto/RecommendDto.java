@@ -13,14 +13,12 @@ import java.util.List;
 public class RecommendDto {
 
     private String foodName;
-    private String imgUrl; //지피티가 생성한 임시 url
     private List<String> ingredients;
     private List<String> recipe;
 
     @Builder
-    public RecommendDto(String foodName, String imgUrl, List<String> ingredients, List<String> recipe) {
+    public RecommendDto(String foodName, List<String> ingredients, List<String> recipe) {
         this.foodName = foodName;
-        this.imgUrl = imgUrl;
         this.ingredients = ingredients;
         this.recipe = recipe;
     }
