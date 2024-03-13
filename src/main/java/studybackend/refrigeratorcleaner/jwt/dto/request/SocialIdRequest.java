@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReIssueRequest {
+public class SocialIdRequest {
 
-    private String email;
-    private String socialType;
     private String socialId;
-    private String refreshToken;
 }
