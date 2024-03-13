@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EQUAL_JSON;
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EQUAL_JSON;
 
 @Slf4j
 public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -44,7 +44,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if(request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)  ) {
-            throw new CustomException(NO_EQUAL_JSON);
+            throw new CustomException(NOT_EQUAL_JSON);
         }
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);

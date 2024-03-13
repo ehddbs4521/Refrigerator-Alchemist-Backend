@@ -10,7 +10,7 @@ import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
-import static studybackend.refrigeratorcleaner.error.ErrorCode.NO_EXIST_USER_SOCIALID;
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SOCIALID;
 
 
 @Service
@@ -22,7 +22,7 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new CustomException(NO_EXIST_USER_SOCIALID));
+                .orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getSocialId())
