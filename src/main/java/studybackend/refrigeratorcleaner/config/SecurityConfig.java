@@ -38,9 +38,7 @@ public class SecurityConfig {
 
     private final LoginService loginService;
     private final JwtService jwtService;
-    private final AuthService authService;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
     private final ObjectMapper objectMapper;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
@@ -88,7 +86,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(jwtService, authService, userRepository, tokenRepository);
+        return new LoginSuccessHandler(jwtService, userRepository);
     }
 
     @Bean
