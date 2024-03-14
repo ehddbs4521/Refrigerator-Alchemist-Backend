@@ -25,9 +25,7 @@ import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SO
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final AuthService authService;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
 
 
     @Override

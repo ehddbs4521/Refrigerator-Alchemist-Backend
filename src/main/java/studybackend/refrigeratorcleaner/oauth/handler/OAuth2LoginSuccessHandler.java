@@ -31,9 +31,7 @@ import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SO
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final AuthService authService;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
