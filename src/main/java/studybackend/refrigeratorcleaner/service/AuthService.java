@@ -204,6 +204,7 @@ public class AuthService {
 
     }
 
+    @Transactional
     public void logout(String refreshToken, String socialId) {
 
         User user = userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
