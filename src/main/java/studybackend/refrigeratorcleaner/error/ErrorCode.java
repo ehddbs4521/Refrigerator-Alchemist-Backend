@@ -27,8 +27,8 @@ public enum ErrorCode {
     SEND_EMAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 전송을 실패했습니다."),
     NOT_AUTHENTICATION_INFO(HttpStatus.BAD_REQUEST,"사용자 정보가 없습니다."),
     NOT_EXIST_USER_TOKEN(HttpStatus.NOT_FOUND,"TOKEN DB와 매핑 할 수 없습니다"),
-    NOT_EQUAL_EACH_TOKEN_SOCIALID(HttpStatus.BAD_REQUEST, "로그인한 사용자의 Refresh Token이 아닙니다")
-    ;
+    NOT_EQUAL_EACH_TOKEN_SOCIALID(HttpStatus.BAD_REQUEST, "로그인한 사용자의 Refresh Token이 아닙니다"),
+    NOT_EXIST_RERESHTOKEN_COOKIE(HttpStatus.NOT_FOUND, "해당 쿠키를 찾을 수 없습니다.");
 
 
     private final HttpStatus status;
