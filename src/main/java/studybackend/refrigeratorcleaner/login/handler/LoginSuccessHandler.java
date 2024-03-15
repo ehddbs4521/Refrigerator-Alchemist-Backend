@@ -46,8 +46,8 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         log.info("로그인에 성공하였습니다. AccessToken : {}", accessToken);
 
         response.setHeader("Authorization-Access", accessToken);
+        response.setHeader("Authorization-Refresh", refreshToken);
         response.setHeader("url", userInfo.getImageUrl());
-        response.addCookie(jwtService.createCookie("Authorization-Refresh", refreshToken));
         response.setStatus(HttpStatus.OK.value());
 
     }

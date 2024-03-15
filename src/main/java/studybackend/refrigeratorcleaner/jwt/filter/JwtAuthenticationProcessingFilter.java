@@ -52,9 +52,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (accessToken == null) {
-            throw new CustomException(NOT_VALID_ACCESSTOKEN);
-        }
+        throw new CustomException(NOT_VALID_ACCESSTOKEN);
+
     }
 
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,

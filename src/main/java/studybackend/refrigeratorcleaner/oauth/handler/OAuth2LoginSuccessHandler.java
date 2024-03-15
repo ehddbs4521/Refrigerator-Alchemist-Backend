@@ -55,7 +55,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                         .toUriString();
 
                 response.setHeader("Authorization-Access", accessToken);
-                response.addCookie(jwtService.createCookie("Authorization-Refresh", refreshToken));
+                response.setHeader("Authorization-Refresh", refreshToken);
                 response.setStatus(HttpStatus.OK.value());
                 response.sendRedirect(targetUrl);
 
@@ -84,7 +84,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .toUriString();
 
         response.setHeader("Authorization-Access", accessToken);
-        response.addCookie(jwtService.createCookie("Authorization-Refresh", refreshToken));
+        response.setHeader("Authorization-Refresh", refreshToken);
         response.setStatus(HttpStatus.OK.value());
         response.sendRedirect(targetUrl);
 
