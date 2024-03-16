@@ -32,8 +32,10 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/auth/send-email")
-    public ResponseEntity<Object> sendEmail(@RequestBody EmailRequest emailRequest) throws MessagingException {
-        return ResponseEntity.ok(authService.sendEmail(emailRequest));
+    public ResponseEntity<Object> sendEmail(@RequestBody EmailRequest emailRequest) {
+
+        authService.sendEmail(emailRequest);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/auth/verify-email")
@@ -44,10 +46,10 @@ public class AuthController {
     }
 
     @PostMapping("/auth/resend-email")
-    public ResponseEntity<Object> reSendEmail(@RequestBody EmailRequest emailRequest) throws MessagingException {
+    public ResponseEntity<Object> reSendEmail(@RequestBody EmailRequest emailRequest) {
 
-        return ResponseEntity.ok(authService.sendEmail(emailRequest));
-
+        authService.sendEmail(emailRequest);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/auth/verify-nickname")
@@ -77,8 +79,8 @@ public class AuthController {
     @PostMapping("/auth/token/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request,@RequestBody SocialIdRequest socialIdRequest) {
 
-        String refreshToken = jwtService.extractRefreshToken(request).get();
-        authService.logout(refreshToken, socialIdRequest.getSocialId());
+        String accessToken = jwtService.extractAccessToken(request).get();
+        authService.logout(accessToken, socialIdRequest.getSocialId());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
