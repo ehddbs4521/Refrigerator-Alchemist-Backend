@@ -2,9 +2,6 @@ package studybackend.refrigeratorcleaner.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,18 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.dto.request.*;
-import studybackend.refrigeratorcleaner.dto.response.VerifyEmailResonse;
-import studybackend.refrigeratorcleaner.entity.Token;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
-import studybackend.refrigeratorcleaner.repository.TokenRepository;
+import studybackend.refrigeratorcleaner.redis.entity.BlackList;
+import studybackend.refrigeratorcleaner.redis.entity.EmailAuthentication;
+import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
+import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
+import studybackend.refrigeratorcleaner.redis.repository.EmailAuthenticationRepository;
+import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -40,7 +42,9 @@ import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
+    private final BlackListRepository blackListRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailUtil emailUtil;
     private final AmazonS3Client amazonS3Client;
@@ -53,24 +57,19 @@ public class AuthService {
     @Value("${default.profile}")
     private String defaultProfile;
 
-    public VerifyEmailResonse sendEmail(EmailRequest emailRequest) throws MessagingException {
+    public void sendEmail(EmailRequest emailRequest) {
 
         validateEmail(emailRequest);
 
         String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
-        LocalDateTime createTime = LocalDateTime.now();
-        LocalDateTime expireTime = LocalDateTime.now().plusMinutes(10);
+
+        long expireTime = LocalDateTime.now().plusMinutes(10)
+                .atZone(ZoneId.systemDefault())
+                .toEpochSecond();
 
         emailUtil.sendEmail(emailRequest.getEmail(), randomNum);
-
-        VerifyEmailResonse verifyEmailResonse = VerifyEmailResonse.
-                builder()
-                .randomNum(randomNum)
-                .createTime(createTime)
-                .expireTime(expireTime)
-                .build();
-
-        return verifyEmailResonse;
+        String id = emailRequest.getEmail() + "_" + emailRequest.getEmailType() + "_" + emailRequest.getSocialType();
+        emailAuthenticationRepository.save(new EmailAuthentication(id, randomNum, expireTime));
 
     }
 
@@ -108,10 +107,14 @@ public class AuthService {
                 && verifyEmailRequest.getEmailType().equals("reset-password")) {
             throw new CustomException(NOT_EXIST_USER_EMAIL);
         }
-        if (!verifyEmailRequest.getRandomNum().equals(verifyEmailRequest.getInputNum())) {
+        String id = verifyEmailRequest.getEmail() + "_" + verifyEmailRequest.getEmailType() + "_" + verifyEmailRequest.getSocialType();
+
+        EmailAuthentication emailAuthentication = emailAuthenticationRepository.findById(id).orElseThrow(() -> new CustomException(NOT_EXIST_USER_EMAIL));
+        if (!emailAuthentication.getRandomNum()
+                .equals(verifyEmailRequest.getInputNum())) {
             throw new CustomException(WRONG_CERTIFICATION_NUMBER);
         }
-        if (verifyEmailRequest.getSendTime().isAfter(verifyEmailRequest.getExpireTime())) {
+        if (emailAuthentication.getExp()<Instant.now().getEpochSecond()) {
             throw new CustomException(EXPIRE_CERTIFICATION_NUMBER);
         }
     }
@@ -172,17 +175,23 @@ public class AuthService {
             throw new CustomException(NOT_VALID_REFRESHTOKEN);
         }
 
-        if (tokenRepository.existsByRefreshToken(refreshToken)) {
+        if (blackListRepository.existsByAccessToken(refreshToken)) {
             throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
         }
 
         String newAccessToken = jwtService.generateAccessToken(accessTokenSocialId);
         String newRefreshToken = jwtService.generateRefreshToken(accessTokenSocialId);
 
+        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        token.updateRefreshToken(newRefreshToken);
+
+        refreshTokenRepository.save(token);
+
         TokenResponse tokenResponse=TokenResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+
         return tokenResponse;
     }
 
@@ -208,30 +217,31 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshToken, String socialId) {
+    public void logout(String accessToken, String socialId) {
 
-        User user = userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
-        Token token = new Token();
+        userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
 
-        user.assignToken(token);
 
-        if (!jwtService.isTokenValid(refreshToken)) {
+        if (!jwtService.isTokenValid(accessToken)) {
             throw new CustomException(NOT_VALID_REFRESHTOKEN);
         }
 
-        String tokenSocialId = jwtService.extractSocialId(refreshToken).get();
+        String tokenSocialId = jwtService.extractSocialId(accessToken).get();
 
         if (!tokenSocialId.equals(socialId)) {
             throw new CustomException(NOT_EQUAL_EACH_TOKEN_SOCIALID);
         }
 
-        if (tokenRepository.existsByRefreshToken(refreshToken)) {
+        if (blackListRepository.existsByAccessToken(accessToken)) {
             throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
         }
 
-        token.updateTokens(refreshToken);
+        RefreshToken token = refreshTokenRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
 
-        tokenRepository.saveAndFlush(token);
+        refreshTokenRepository.delete(token);
+        Long leftTime = System.currentTimeMillis() - jwtService.extractTime(accessToken);
+        blackListRepository.save(new BlackList(socialId, accessToken, leftTime));
+
     }
 
 }

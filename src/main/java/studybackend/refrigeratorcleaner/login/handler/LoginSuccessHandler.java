@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
-import studybackend.refrigeratorcleaner.repository.TokenRepository;
+import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
+import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
-import studybackend.refrigeratorcleaner.service.AuthService;
+
+import java.util.Optional;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SOCIALID;
 
@@ -26,6 +28,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Override
@@ -41,9 +44,18 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtService.generateAccessToken(socialId);
         String refreshToken = jwtService.generateRefreshToken(socialId);
 
+        Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
+
+        if (token.isEmpty()) {
+            refreshTokenRepository.save(new RefreshToken(refreshToken, socialId));
+        } else {
+            token.get().updateRefreshToken(refreshToken);
+            refreshTokenRepository.save(token.get());
+        }
 
         log.info("로그인에 성공하였습니다. 이메일 : {}", email);
         log.info("로그인에 성공하였습니다. AccessToken : {}", accessToken);
+        log.info("로그인에 성공하였습니다. RefreshToken : {}", refreshToken);
 
         response.setHeader("Authorization-Access", accessToken);
         response.setHeader("Authorization-Refresh", refreshToken);
