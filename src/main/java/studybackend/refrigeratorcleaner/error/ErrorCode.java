@@ -15,6 +15,7 @@ public enum ErrorCode {
     NOT_EXIST_USER_NICKNAME(HttpStatus.NOT_FOUND, "닉네임이 존재하지않습니다."),
     NOT_EXIST_USER_SOCIALID(HttpStatus.NOT_FOUND, "socialId가 존재하지않습니다."),
     EXIST_REFRESHTOKEN_BLACKLIST(HttpStatus.CONFLICT,"이미 로그아웃한 사용자입니다."),
+    NOT_EXIST_REFRESHTOKEN(HttpStatus.NOT_FOUND,"존재하지 않는 Refresh Token입니다."),
     NOT_VALID_REFRESHTOKEN(HttpStatus.BAD_REQUEST,"유효하지 않은 Refresh토큰입니다."),
     NOT_EXTRACT_EMAIL(HttpStatus.UNAUTHORIZED, "토큰에서 email을 추출 할 수 없습니다.(잘못된 토큰)"),
     NOT_VALID_ACCESSTOKEN(HttpStatus.UNAUTHORIZED, "Access토큰이 유요하지 않습니다."),
