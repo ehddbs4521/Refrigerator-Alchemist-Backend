@@ -33,10 +33,6 @@ public class User {
     @Column(unique = true)
     private String socialId; // 로그인한 소셜 타입의 식별자 값
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Token token;
-
-
     public void authorizeUser() {
         this.role = Role.USER.getKey();
     }
@@ -58,8 +54,4 @@ public class User {
         this.socialType = socialType;
     }
 
-    public void assignToken(Token token) {
-        this.token = token;
-        token.setUser(this); // Token 클래스에도 setUser 메서드가 필요합니다.
-    }
 }
