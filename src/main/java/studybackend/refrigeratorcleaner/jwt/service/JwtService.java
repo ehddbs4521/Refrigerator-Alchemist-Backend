@@ -4,14 +4,12 @@ package studybackend.refrigeratorcleaner.jwt.service;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import studybackend.refrigeratorcleaner.repository.TokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.security.Key;
@@ -36,20 +34,17 @@ public class JwtService {
     private String refreshHeader;
     private final Key key;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
 
     public JwtService(@Value("${jwt.secret-key}") String secretKey,
                       @Value("${jwt.access-header}") String accessHeader,
                       @Value("${jwt.refresh-header}") String refreshHeader,
-                      UserRepository userRepository,
-                      TokenRepository tokenRepository) {
+                      UserRepository userRepository) {
         this.secretKey = secretKey;
         this.accessHeader = accessHeader;
         this.refreshHeader = refreshHeader;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.userRepository = userRepository;
-        this.tokenRepository = tokenRepository;
     }
     public String generateAccessToken(String socialId) {
 
@@ -103,6 +98,16 @@ public class JwtService {
         }
     }
 
+    public Long extractTime(String accessToken) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getExpiration()
+                .getTime();
+    }
+
     public Optional<String> extractSocialId(String token) {
         try {
             // 토큰 유효성 검사하는 데에 사용할 알고리즘이 있는 JWT verifier builder 반환
@@ -141,5 +146,4 @@ public class JwtService {
         response.setHeader(refreshHeader, refreshToken);
 
     }
-
 }
