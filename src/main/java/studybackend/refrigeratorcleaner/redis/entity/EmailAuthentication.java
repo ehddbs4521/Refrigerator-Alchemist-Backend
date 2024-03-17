@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @AllArgsConstructor
-@RedisHash(timeToLive = 10)
+@RedisHash(timeToLive = 600)
 public class EmailAuthentication {
 
     @Id
