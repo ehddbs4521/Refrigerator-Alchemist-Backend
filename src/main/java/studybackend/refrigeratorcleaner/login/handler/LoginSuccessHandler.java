@@ -47,7 +47,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
 
         if (token.isEmpty()) {
-            refreshTokenRepository.save(new RefreshToken(refreshToken, socialId));
+            refreshTokenRepository.save(new RefreshToken(socialId, refreshToken));
         } else {
             token.get().updateRefreshToken(refreshToken);
             refreshTokenRepository.save(token.get());
@@ -59,7 +59,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         response.setHeader("Authorization-Access", accessToken);
         response.setHeader("Authorization-Refresh", refreshToken);
-        response.setHeader("url", userInfo.getImageUrl());
+        response.setHeader("socialId", socialId);
         response.setStatus(HttpStatus.OK.value());
 
     }

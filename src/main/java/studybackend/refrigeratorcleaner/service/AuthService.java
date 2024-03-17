@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.dto.request.*;
+import studybackend.refrigeratorcleaner.dto.response.ModifyAttributeResponse;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
@@ -60,7 +61,6 @@ public class AuthService {
     public void sendEmail(EmailRequest emailRequest) {
 
         validateEmail(emailRequest);
-
         String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
 
         long expireTime = LocalDateTime.now().plusMinutes(10)
@@ -98,6 +98,7 @@ public class AuthService {
 
 
     public void verifyEmail(VerifyEmailRequest verifyEmailRequest) {
+        String id = verifyEmailRequest.getEmail() + "_" + verifyEmailRequest.getEmailType() + "_" + verifyEmailRequest.getSocialType();
 
         if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
                 && verifyEmailRequest.getEmailType().equals("sign-up")) {
@@ -107,8 +108,6 @@ public class AuthService {
                 && verifyEmailRequest.getEmailType().equals("reset-password")) {
             throw new CustomException(NOT_EXIST_USER_EMAIL);
         }
-        String id = verifyEmailRequest.getEmail() + "_" + verifyEmailRequest.getEmailType() + "_" + verifyEmailRequest.getSocialType();
-
         EmailAuthentication emailAuthentication = emailAuthenticationRepository.findById(id).orElseThrow(() -> new CustomException(NOT_EXIST_USER_EMAIL));
         if (!emailAuthentication.getRandomNum()
                 .equals(verifyEmailRequest.getInputNum())) {
@@ -137,7 +136,6 @@ public class AuthService {
     public String updateProfileUrl(MultipartFile multipartFile,String nickName) throws IOException {
 
         User user = userRepository.findByNickName(nickName).orElseThrow(() -> new CustomException(NOT_EXIST_USER_NICKNAME));
-
         String fileName = multipartFile.getOriginalFilename();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(multipartFile.getContentType());
@@ -217,13 +215,13 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String accessToken, String socialId) {
+    public void logout(String accessToken, String refreshToken, String socialId) {
 
         userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
 
 
         if (!jwtService.isTokenValid(accessToken)) {
-            throw new CustomException(NOT_VALID_REFRESHTOKEN);
+            throw new CustomException(NOT_VALID_ACCESSTOKEN);
         }
 
         String tokenSocialId = jwtService.extractSocialId(accessToken).get();
@@ -236,7 +234,7 @@ public class AuthService {
             throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
         }
 
-        RefreshToken token = refreshTokenRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
 
         refreshTokenRepository.delete(token);
         Long leftTime = System.currentTimeMillis() - jwtService.extractTime(accessToken);
@@ -244,4 +242,16 @@ public class AuthService {
 
     }
 
+    public ModifyAttributeResponse getEmailNickName(String socialId) {
+
+        User user = userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+
+        ModifyAttributeResponse modifyAttributeResponse=ModifyAttributeResponse
+                .builder()
+                .email(user.getEmail())
+                .nickName(user.getNickName())
+                .build();
+
+        return modifyAttributeResponse;
+    }
 }

@@ -13,7 +13,7 @@ public class VerifyEmailRequest {
 
     private String email;
     private String emailType;
-    private String socialType;
     private String inputNum;
+    private String socialType;
 
 }

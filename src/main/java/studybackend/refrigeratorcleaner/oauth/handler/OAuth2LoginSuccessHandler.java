@@ -47,11 +47,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             if(oAuth2User.getRole() == Role.GUEST.getKey()) {
                 User user = userRepository.findBySocialId(oAuth2User.getSocialId()).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
 
-                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
+                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
                         .queryParam("email",oAuth2User.getEmail())
-                        .queryParam("socialType",oAuth2User.getSocialType())
-                        .queryParam("url",user.getImageUrl())
-                        .queryParam("nickName",user.getNickName())
+                        .queryParam("socialId",oAuth2User.getSocialId())
                         .queryParam("accessToken", accessToken)
                         .queryParam("refreshToken", refreshToken)
                         .build()
@@ -69,7 +67,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
             Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
 
-            if (token == null) {
+            if (token.isEmpty()) {
                 refreshTokenRepository.save(new RefreshToken(oAuth2User.getSocialId(), refreshToken));
             } else {
                 token.get().updateRefreshToken(refreshToken);
@@ -83,9 +81,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User,String accessToken,String refreshToken) throws IOException {
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
                 .queryParam("email",oAuth2User.getEmail())
-                .queryParam("socialType",oAuth2User.getSocialType())
                 .queryParam("socialId",oAuth2User.getSocialId())
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)

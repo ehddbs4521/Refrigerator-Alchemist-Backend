@@ -1,6 +1,5 @@
 package studybackend.refrigeratorcleaner.controller;
 
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -10,18 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import studybackend.refrigeratorcleaner.dto.request.*;
+import studybackend.refrigeratorcleaner.dto.request.EmailRequest;
+import studybackend.refrigeratorcleaner.dto.request.NickNameRequest;
+import studybackend.refrigeratorcleaner.dto.request.UserRequest;
+import studybackend.refrigeratorcleaner.dto.request.VerifyEmailRequest;
 import studybackend.refrigeratorcleaner.jwt.dto.request.SocialIdRequest;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.service.AuthService;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -68,19 +64,12 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/auth/reset-password")
-    public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-
-        authService.resetPassword(resetPasswordRequest);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @PostMapping("/auth/token/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request,@RequestBody SocialIdRequest socialIdRequest) {
 
         String accessToken = jwtService.extractAccessToken(request).get();
-        authService.logout(accessToken, socialIdRequest.getSocialId());
+        String refreshToken = jwtService.extractRefreshToken(request).get();
+        authService.logout(accessToken, refreshToken, socialIdRequest.getSocialId());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -93,23 +82,5 @@ public class AuthController {
         jwtService.setTokens(response, tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping("/change-nickname")
-    public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickNameRequest validateNickNameRequest) {
-
-        authService.changeNickName(validateNickNameRequest);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping("/change-profile")
-    public ResponseEntity<Object> changeProfile(@RequestPart(value = "nickName") NickNameRequest nickNameRequest, @RequestPart(value = "file") MultipartFile multipartFile) throws IOException {
-
-        String updateProfileUrl = authService.updateProfileUrl(multipartFile, nickNameRequest.getNickName());
-        Map<String, String> profile = new HashMap<>();
-        profile.put("url", updateProfileUrl);
-
-        return ResponseEntity.ok(profile);
     }
 }
