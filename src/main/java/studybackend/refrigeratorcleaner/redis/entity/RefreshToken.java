@@ -10,14 +10,14 @@ import java.io.Serializable;
 
 @Getter
 @AllArgsConstructor
-@RedisHash(timeToLive = 60 * 60 * 24 * 14)
+@RedisHash(value = "refreshtoken",timeToLive = 60 * 60 * 24 * 14)
 public class RefreshToken implements Serializable {
 
     @Id
-    private String refreshToken;
+    private String socialId;
 
     @Indexed
-    private String socialId;
+    private String refreshToken;
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
