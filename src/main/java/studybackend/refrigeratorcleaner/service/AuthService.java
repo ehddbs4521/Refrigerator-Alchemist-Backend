@@ -203,7 +203,6 @@ public class AuthService {
         }
         if (changeNickName.isEmpty()) {
             User user = existNickName.get();
-            log.info("Eqeqe:{}",user.getSocialId());
             user.updateNickname(validateNickNameRequest.getChangeNickName());
             userRepository.save(user);
 
