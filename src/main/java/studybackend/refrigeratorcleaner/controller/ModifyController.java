@@ -24,14 +24,6 @@ public class ModifyController {
 
     private final AuthService authService;
 
-    @PostMapping("/auth/reset-password")
-    public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-
-        authService.resetPassword(resetPasswordRequest);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @PostMapping("/change-nickname")
     public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickNameRequest validateNickNameRequest) {
 
