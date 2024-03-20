@@ -180,7 +180,7 @@ public class AuthService {
         String newAccessToken = jwtService.generateAccessToken(accessTokenSocialId);
         String newRefreshToken = jwtService.generateRefreshToken(accessTokenSocialId);
 
-        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        RefreshToken token = refreshTokenRepository.findBySocialId(accessTokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
         token.updateRefreshToken(newRefreshToken);
 
         refreshTokenRepository.save(token);
@@ -233,7 +233,7 @@ public class AuthService {
             throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
         }
 
-        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        RefreshToken token = refreshTokenRepository.findBySocialId(tokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
 
         refreshTokenRepository.delete(token);
         Long leftTime = System.currentTimeMillis() - jwtService.extractTime(accessToken);

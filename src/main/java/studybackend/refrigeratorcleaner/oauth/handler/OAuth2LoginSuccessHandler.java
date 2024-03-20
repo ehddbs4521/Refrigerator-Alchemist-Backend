@@ -63,7 +63,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             } else {
                 loginSuccess(response, oAuth2User,accessToken,refreshToken); // 로그인에 성공한 경우 access, refresh 토큰 생성
             }
-            Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
+            Optional<RefreshToken> token = refreshTokenRepository.findBySocialId(oAuth2User.getSocialId());
 
             if (token.isEmpty()) {
                 refreshTokenRepository.save(new RefreshToken(oAuth2User.getSocialId(), refreshToken));

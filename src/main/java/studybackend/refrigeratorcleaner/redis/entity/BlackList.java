@@ -14,9 +14,9 @@ import org.springframework.data.redis.core.index.Indexed;
 public class BlackList {
 
     @Id
+    @Indexed
     private String socialId;
 
-    @Indexed
     private String accessToken;
 
     @TimeToLive

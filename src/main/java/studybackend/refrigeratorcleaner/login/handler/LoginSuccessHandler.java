@@ -44,7 +44,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtService.generateAccessToken(socialId);
         String refreshToken = jwtService.generateRefreshToken(socialId);
 
-        Optional<RefreshToken> token = refreshTokenRepository.findByRefreshToken(refreshToken);
+        Optional<RefreshToken> token = refreshTokenRepository.findBySocialId(socialId);
 
         if (token.isEmpty()) {
             refreshTokenRepository.save(new RefreshToken(socialId, refreshToken));

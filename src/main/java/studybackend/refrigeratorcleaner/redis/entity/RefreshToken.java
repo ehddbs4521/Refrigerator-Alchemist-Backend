@@ -14,9 +14,9 @@ import java.io.Serializable;
 public class RefreshToken implements Serializable {
 
     @Id
+    @Indexed
     private String socialId;
 
-    @Indexed
     private String refreshToken;
 
     public void updateRefreshToken(String refreshToken) {
