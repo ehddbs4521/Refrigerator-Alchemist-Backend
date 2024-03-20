@@ -2,6 +2,7 @@ package studybackend.refrigeratorcleaner.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.LikeCheck;
@@ -50,4 +51,5 @@ public class LikeApiController {
         Map<String, List<Map<String, Object>>> content =  makeApi(board);
         return content;
     }
+
 }

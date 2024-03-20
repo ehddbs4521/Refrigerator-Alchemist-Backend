@@ -11,7 +11,7 @@ import studybackend.refrigeratorcleaner.Service.DelUserService;
 @RequiredArgsConstructor
 public class DelUserController {
     private final DelUserService dService;
-    @GetMapping(value = "board/delUser") // 좋아요 누르기
+    @GetMapping(value = "board/delUser")
     public String delUser() {
         String nickName = "delTest";
         dService.deleteByNickName(nickName);

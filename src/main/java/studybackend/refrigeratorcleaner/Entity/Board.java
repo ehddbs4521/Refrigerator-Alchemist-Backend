@@ -4,6 +4,8 @@ package studybackend.refrigeratorcleaner.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "board")
 @Getter
@@ -33,15 +35,19 @@ public class Board {
     @Column(name = "like_count") //게시글 좋아요 수
     private int likeCount ;
 
+
+    @Column(name = "ingredients")
+    private List<String> ingredients;
     @Column(name = "image_url")
     private String imageUrl;
     @Builder
-    public Board(String email,String nickName,String title,String texts,int likeCount,String imageUrl){
+    public Board(String email,String nickName,String title,String texts,int likeCount,String imageUrl,List<String> ingredients){
         this.email = email;
         this.nickName = nickName;
         this.title = title;
         this.texts = texts;
         this.likeCount = likeCount;
         this.imageUrl  = imageUrl;
+        this.ingredients = ingredients;
     }
 }

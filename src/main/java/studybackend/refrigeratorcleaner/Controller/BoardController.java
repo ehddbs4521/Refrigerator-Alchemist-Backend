@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -76,20 +77,70 @@ public class BoardController {
         return "redirect:/board";
     }
 
-    @PostMapping("/writeTest")
+    @PostMapping("/content/update") //레시피를 업로드 하는 주소
+    public ResponseEntity<String> updateContent(HttpServletRequest request,@RequestParam Map<String, String> formData) throws IOException {
+//        MultipartFile image = ((MultipartHttpServletRequest) request).getFile("image");
+//        InputStream imageInputStream = null;
+//        String imageUrl  = "";
+//        if (image != null) {
+//            try { //InputStream으로 변환해주는 코드
+//                imageInputStream = image.getInputStream();
+//                imageUrl= iService.uploadImage(imageInputStream,"test");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
+//            }
+//        }
+
+
+        System.out.println("업데이트 확인: "+request.getParameter("postId"));
+        String foodName = request.getParameter("foodName");
+        String description = request.getParameter("description");
+        List<String> ingredients = new ArrayList<>();
+        formData.forEach((key, value) -> {
+            if (key.startsWith("ingredient")) {
+                ingredients.add(value);
+            }
+        });
+
+        try {
+            List<Board> board = bService.getSpecific(Long.valueOf(request.getParameter("postId")));
+            Board b = board.get(0);
+                    b = Board.builder().
+                    email("test@naver.com").
+                    nickName("test").
+                    title(foodName).
+                    texts(description).
+                    ingredients(ingredients).
+                    build();
+            bService.updateBoard(b);
+            //contentService.saveContent(image, foodName, description, ingredients);
+            return ResponseEntity.ok("Content uploaded successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading content");
+        }
+    }
+    @PostMapping("/writeTest") //레시피를 업로드 하는 주소
     public ResponseEntity<String> writeContent(HttpServletRequest request,@RequestParam Map<String, String> formData) throws IOException {
         MultipartFile image = ((MultipartHttpServletRequest) request).getFile("image");
         InputStream imageInputStream = null;
         String imageUrl  = "";
-        try { //InputStream으로 변환해주는 코드
-            imageInputStream = image.getInputStream();
 
-            imageUrl= iService.uploadImage(imageInputStream,"test");
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
+
+        if (image != null) {
+            try { //InputStream으로 변환해주는 코드
+                imageInputStream = image.getInputStream();
+
+                imageUrl= iService.uploadImage(imageInputStream,"test");
+            } catch (IOException e) {
+                e.printStackTrace();
+                // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
+            }
         }
+
 
 
         String foodName = request.getParameter("foodName");
@@ -118,6 +169,7 @@ public class BoardController {
                     title(foodName).
                     texts(description).
                     imageUrl(imageUrl).
+                    ingredients(ingredients).
                     build();
             bService.saveBoard(b);
             //contentService.saveContent(image, foodName, description, ingredients);
@@ -129,7 +181,6 @@ public class BoardController {
     }
     @GetMapping (value = "board/likeApi") // 좋아요 누르기
     public String clickLike(@RequestBody LikeDto likeDto) {
-
         String nickName = "test";
         String title = "jxckmnjv";
         String clickerName = "changeme";
@@ -148,4 +199,7 @@ public class BoardController {
         }
         return "home";
     }
+
+
+
 }

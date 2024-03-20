@@ -4,11 +4,16 @@ package studybackend.refrigeratorcleaner.Controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import studybackend.refrigeratorcleaner.Entity.Board;
 import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.Service.MyPageService;
+import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.error.ErrorCode;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,5 +56,7 @@ public class MyPageApiController {  //회원 정보 수정
         user.updateRefreshToken(Token);
         myPageService.updateUser(user);
     }
+
+
 
 }

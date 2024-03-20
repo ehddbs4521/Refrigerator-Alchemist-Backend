@@ -22,9 +22,12 @@ public class BoardService {
                 bRepository.saveBoard(b);
         }
         public void updateBoard (Board b) {bRepository.updateBoard(b);}
+        public String boardSize() {return bRepository.boardSize();}
+        public void deleteBoard(Board b) { bRepository.deleteBoard(b);}
+        public List<Board> getSpecific(Long id) { return bRepository.getSpecific(id);}
         public  void saveBoardContent(BoardContent bC) {bRepository.saveBoardContent(bC);}
-        public List<Board> getBoard() {
-                return bRepository.getBoard();
+        public List<Board> getBoard(int offset) {
+                return bRepository.getBoard(offset);
         }
         public List<Board> orderLikeCount() {return bRepository.orderLikeCount();}
         //제목으로 검색
@@ -33,6 +36,8 @@ public class BoardService {
         public List<Board> myList(String nickName) {
                 return  bRepository.myList(nickName);
         }
+
+
         public Board  getBoarEntity(BoardDto b){
                 Board board = Board.builder().
                         email(b.getEmail()).
