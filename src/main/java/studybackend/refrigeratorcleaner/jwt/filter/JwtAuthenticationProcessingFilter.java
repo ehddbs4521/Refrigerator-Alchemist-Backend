@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -16,9 +17,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
+import studybackend.refrigeratorcleaner.redis.entity.BlackList;
+import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
@@ -30,6 +34,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final BlackListRepository blackListRepository;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -58,22 +63,24 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
-        jwtService.extractAccessToken(request)
+
+        String accessToken = jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
-                .ifPresentOrElse(accessToken -> {
-                    // Token이 유효할 때
-                    jwtService.extractEmail(accessToken)
-                            .ifPresentOrElse(email -> {
-                                        // Email 추출 성공 시f
-                                        userRepository.findByEmail(email)
-                                                .ifPresentOrElse(this::saveAuthentication,
-                                                        () -> new CustomException(NOT_EXIST_USER_EMAIL)
-                                                        );
-                                    },
-                                    () -> new CustomException(NOT_EXTRACT_EMAIL)
-                            );
-                }, () -> new CustomException(NOT_EXTRACT_ACCESSTOKEN)
-                );
+                .orElseThrow(() -> new CustomException(NOT_EXTRACT_ACCESSTOKEN));
+
+        String socialID = jwtService.extractSocialId(accessToken)
+                .orElseThrow(() -> new CustomException(NOT_EXTRACT_SOCIALID));
+
+        User user = userRepository.findBySocialId(socialID)
+                .orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+
+        Optional<BlackList> blackList = blackListRepository.findBySocialId(socialID);
+
+        if (!blackList.isEmpty() && blackList.get().getAccessToken().equals(accessToken)) {
+            throw new CustomException(NOT_VALID_ACCESSTOKEN);
+        }
+
+        saveAuthentication(user);
 
         filterChain.doFilter(request, response);
     }
