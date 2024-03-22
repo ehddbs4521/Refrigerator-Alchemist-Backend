@@ -68,30 +68,25 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .filter(jwtService::isTokenValid)
                 .orElseThrow(() -> new CustomException(NOT_EXTRACT_ACCESSTOKEN));
 
-        String socialID = jwtService.extractSocialId(accessToken)
-                .orElseThrow(() -> new CustomException(NOT_EXTRACT_SOCIALID));
+        String socialID = jwtService.extractSocialId(accessToken);
 
         User user = userRepository.findBySocialId(socialID)
                 .orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
-
         Optional<BlackList> blackList = blackListRepository.findBySocialId(socialID);
 
         if (!blackList.isEmpty() && blackList.get().getAccessToken().equals(accessToken)) {
             throw new CustomException(NOT_VALID_ACCESSTOKEN);
         }
-
         saveAuthentication(user);
 
         filterChain.doFilter(request, response);
     }
-
 
     public void saveAuthentication(User user) {
         String password = user.getPassword();
         if (password == null) {
             password = UUID.randomUUID().toString().replace("-","").substring(0,8);
         }
-
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getSocialId())
                 .password(password)
@@ -99,8 +94,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .build();
 
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetailsUser, null,
-                authoritiesMapper.mapAuthorities(userDetailsUser.getAuthorities()));
+                new UsernamePasswordAuthenticationToken(userDetailsUser, user.getPassword(),null);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
