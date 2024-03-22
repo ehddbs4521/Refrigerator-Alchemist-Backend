@@ -26,6 +26,7 @@ import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -214,7 +215,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String accessToken, String refreshToken, String socialId) {
+    public void logout(String accessToken, String socialId) {
 
         userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
 
@@ -223,7 +224,7 @@ public class AuthService {
             throw new CustomException(NOT_VALID_ACCESSTOKEN);
         }
 
-        String tokenSocialId = jwtService.extractSocialId(accessToken).get();
+        String tokenSocialId = jwtService.extractSocialId(accessToken);
 
         if (!tokenSocialId.equals(socialId)) {
             throw new CustomException(NOT_EQUAL_EACH_TOKEN_SOCIALID);
@@ -236,9 +237,15 @@ public class AuthService {
         RefreshToken token = refreshTokenRepository.findBySocialId(tokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
 
         refreshTokenRepository.delete(token);
-        Long leftTime = System.currentTimeMillis() - jwtService.extractTime(accessToken);
+        Long leftTime = calculateTimeLeft(accessToken);
         blackListRepository.save(new BlackList(socialId, accessToken, leftTime));
 
+    }
+
+    public Long calculateTimeLeft(String accessToken) {
+        Instant expirationTime = jwtService.extractTime(accessToken).toInstant();
+        Instant now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+        return Duration.between(now, expirationTime).getSeconds();
     }
 
     public ModifyAttributeResponse getEmailNickName(String socialId) {
