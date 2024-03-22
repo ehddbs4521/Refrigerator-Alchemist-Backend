@@ -76,8 +76,7 @@ public class AuthController {
     public ResponseEntity<Object> logout(HttpServletRequest request,@RequestBody SocialIdRequest socialIdRequest) {
 
         String accessToken = jwtService.extractAccessToken(request).get();
-        String refreshToken = jwtService.extractRefreshToken(request).get();
-        authService.logout(accessToken, refreshToken, socialIdRequest.getSocialId());
+        authService.logout(accessToken, socialIdRequest.getSocialId());
         SecurityContextHolder.clearContext();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
