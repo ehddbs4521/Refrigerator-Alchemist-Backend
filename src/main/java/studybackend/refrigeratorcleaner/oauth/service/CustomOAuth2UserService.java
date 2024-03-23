@@ -43,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
         Map<String, Object> attributes = oAuth2User.getAttributes();
         OAuthAttributes extractAttributes = OAuthAttributes.of(socialType, userNameAttributeName, attributes);
-        User createdUser = getUser(extractAttributes, socialType,passwordEncoder); // getUser() 메소드로 User 객체 생성 후 반환
+        User createdUser = getUser(extractAttributes, socialType,passwordEncoder);
 
         return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(Role.USER.getKey())),

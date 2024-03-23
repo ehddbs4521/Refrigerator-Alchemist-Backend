@@ -97,17 +97,15 @@ public class JwtService {
                 .getExpiration();
     }
 
-    public String extractSocialId(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get(SOCIAL_ID, String.class);
-        } catch (Exception e) {
-            throw new CustomException(NOT_EXTRACT_SOCIALID);
-        }
+    public Optional<String> extractSocialId(String token) {
+
+        return Optional.ofNullable(Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get(SOCIAL_ID, String.class));
+
     }
 
     public boolean isTokenValid(String token) {

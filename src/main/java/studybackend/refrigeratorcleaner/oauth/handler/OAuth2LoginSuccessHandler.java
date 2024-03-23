@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import static studybackend.refrigeratorcleaner.error.CustomServletException.sendJsonError;
 import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SOCIALID;
 
 @Slf4j
@@ -71,8 +72,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 token.get().updateRefreshToken(refreshToken);
                 refreshTokenRepository.save(token.get());
             }
-        } catch (Exception e) {
-            throw e;
+        } catch (CustomException e) {
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
         }
 
     }

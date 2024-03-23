@@ -168,14 +168,14 @@ public class AuthService {
                 },() -> new CustomException(NOT_EXIST_USER_EMAIL_SOCIALTYPE));
     }
 
-    public TokenResponse validateToken(String refreshToken, String accessTokenSocialId) {
+    public TokenResponse validateToken(String accessToken, String refreshToken, String accessTokenSocialId) {
 
         if (!jwtService.isTokenValid(refreshToken)) {
             throw new CustomException(NOT_VALID_REFRESHTOKEN);
         }
 
-        if (blackListRepository.existsByAccessToken(refreshToken)) {
-            throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
+        if (blackListRepository.existsByAccessToken(accessToken)) {
+            throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);
         }
 
         String newAccessToken = jwtService.generateAccessToken(accessTokenSocialId);
@@ -186,7 +186,7 @@ public class AuthService {
 
         refreshTokenRepository.save(token);
 
-        TokenResponse tokenResponse=TokenResponse.builder()
+        TokenResponse tokenResponse = TokenResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
@@ -217,26 +217,32 @@ public class AuthService {
     @Transactional
     public void logout(String accessToken, String socialId) {
 
-        userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+        if (!userRepository.existsBySocialId(socialId)) {
+            throw new CustomException(NOT_EXIST_USER_SOCIALID);
+        }
 
 
         if (!jwtService.isTokenValid(accessToken)) {
             throw new CustomException(NOT_VALID_ACCESSTOKEN);
         }
 
-        String tokenSocialId = jwtService.extractSocialId(accessToken);
+        Optional<String> token = jwtService.extractSocialId(accessToken);
+        if (token.isEmpty()) {
+            throw new CustomException(NOT_EXTRACT_SOCIALID);
+        }
+        String tokenSocialId = token.get();
 
         if (!tokenSocialId.equals(socialId)) {
             throw new CustomException(NOT_EQUAL_EACH_TOKEN_SOCIALID);
         }
 
         if (blackListRepository.existsByAccessToken(accessToken)) {
-            throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
+            throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);
         }
 
-        RefreshToken token = refreshTokenRepository.findBySocialId(tokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        RefreshToken refreshToken = refreshTokenRepository.findBySocialId(tokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
 
-        refreshTokenRepository.delete(token);
+        refreshTokenRepository.delete(refreshToken);
         Long leftTime = calculateTimeLeft(accessToken);
         blackListRepository.save(new BlackList(socialId, accessToken, leftTime));
 
