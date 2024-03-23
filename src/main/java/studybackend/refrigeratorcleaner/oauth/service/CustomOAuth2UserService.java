@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.oauth.dto.CustomOAuth2User;
 import studybackend.refrigeratorcleaner.oauth.dto.OAuthAttributes;
@@ -65,8 +66,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         return SocialType.GOOGLE;
     }
-
-    private User getUser(OAuthAttributes attributes, String socialType,PasswordEncoder passwordEncoder) {
+    @Transactional
+    public User getUser(OAuthAttributes attributes, String socialType,PasswordEncoder passwordEncoder) {
 
         User user = new User();
         Optional<User> users = userRepository.findBySocialId(attributes.getOauth2UserInfo().getId());
@@ -79,12 +80,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return user;
     }
 
-    private void changeRole(Optional<User> users) {
+    @Transactional
+    public void changeRole(Optional<User> users) {
         User user = users.get();
         user.updateRole(Role.USER.getKey());
         userRepository.save(user);
     }
-    private User saveUser(OAuthAttributes attributes, String socialType,PasswordEncoder passwordEncoder) {
+
+    @Transactional
+    public User saveUser(OAuthAttributes attributes, String socialType,PasswordEncoder passwordEncoder) {
 
         User createdUser = attributes.toEntity(socialType, attributes.getOauth2UserInfo(),passwordEncoder);
         return userRepository.save(createdUser);
