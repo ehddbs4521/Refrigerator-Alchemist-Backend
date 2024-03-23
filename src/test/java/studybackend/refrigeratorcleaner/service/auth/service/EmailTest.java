@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth;
+package studybackend.refrigeratorcleaner.service.auth.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
