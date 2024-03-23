@@ -9,12 +9,13 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.oauth.dto.CustomOAuth2User;
 import studybackend.refrigeratorcleaner.oauth.dto.OAuthAttributes;
+import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.oauth.dto.SocialType;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
+
 
 import java.util.Collections;
 import java.util.Map;

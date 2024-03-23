@@ -2,7 +2,7 @@ package studybackend.refrigeratorcleaner.dto;
 
 import java.util.List;
 
-public class IngredientRequestDto {
+public class IngredientRequestDto { //추천받기 요청
 
     private List<String> ingredients;
 

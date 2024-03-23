@@ -26,6 +26,8 @@ import studybackend.refrigeratorcleaner.login.service.LoginService;
 import studybackend.refrigeratorcleaner.oauth.handler.OAuth2LoginFailureHandler;
 import studybackend.refrigeratorcleaner.oauth.handler.OAuth2LoginSuccessHandler;
 import studybackend.refrigeratorcleaner.oauth.service.CustomOAuth2UserService;
+import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
+import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 @Slf4j
@@ -37,6 +39,8 @@ public class SecurityConfig {
     private final LoginService loginService;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final BlackListRepository blackListRepository;
     private final ObjectMapper objectMapper;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
@@ -57,7 +61,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/auth/**","/recipe/recommend/**").permitAll()
                         .anyRequest().authenticated());
         http
                 .oauth2Login((oauth2) -> oauth2
@@ -84,7 +88,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(jwtService, userRepository);
+        return new LoginSuccessHandler(jwtService, userRepository,refreshTokenRepository);
     }
 
     @Bean
@@ -104,7 +108,7 @@ public class SecurityConfig {
 
     @Bean
     public Filter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository);
+        JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository,blackListRepository);
         return jwtAuthenticationFilter;
     }
 

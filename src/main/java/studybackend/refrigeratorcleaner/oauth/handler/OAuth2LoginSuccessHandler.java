@@ -6,16 +6,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.oauth.dto.CustomOAuth2User;
+import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
+import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+
+import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXIST_USER_SOCIALID;
 
 @Slf4j
 @Component
@@ -24,6 +33,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -31,18 +41,35 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         try {
             CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-            if(oAuth2User.getRole() == Role.GUEST.getKey()) {
-                User user = userRepository.findBySocialId(oAuth2User.getSocialId()).get();
-                String accessToken = jwtService.generateAccessToken(oAuth2User.getEmail());
-                String refreshToken = jwtService.generateRefreshToken(oAuth2User.getEmail());
-                user.updateRefreshToken(refreshToken);
-                userRepository.save(user);
-                response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
+            String accessToken = jwtService.generateAccessToken(oAuth2User.getSocialId());
+            String refreshToken = jwtService.generateRefreshToken(oAuth2User.getSocialId());
 
-                jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+            if(oAuth2User.getRole() == Role.GUEST.getKey()) {
+                User user = userRepository.findBySocialId(oAuth2User.getSocialId()).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+
+                String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
+                        .queryParam("email",oAuth2User.getEmail())
+                        .queryParam("socialId",oAuth2User.getSocialId())
+                        .queryParam("accessToken", accessToken)
+                        .queryParam("refreshToken", refreshToken)
+                        .build()
+                        .encode(StandardCharsets.UTF_8)
+                        .toUriString();
+
+                response.setStatus(HttpStatus.OK.value());
+                response.sendRedirect(targetUrl);
+
 
             } else {
-                loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
+                loginSuccess(response, oAuth2User,accessToken,refreshToken); // 로그인에 성공한 경우 access, refresh 토큰 생성
+            }
+            Optional<RefreshToken> token = refreshTokenRepository.findBySocialId(oAuth2User.getSocialId());
+
+            if (token.isEmpty()) {
+                refreshTokenRepository.save(new RefreshToken(oAuth2User.getSocialId(), refreshToken));
+            } else {
+                token.get().updateRefreshToken(refreshToken);
+                refreshTokenRepository.save(token.get());
             }
         } catch (Exception e) {
             throw e;
@@ -50,16 +77,24 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     }
 
-    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
-        String accessToken = jwtService.generateAccessToken(oAuth2User.getEmail());
-        String refreshToken = jwtService.generateRefreshToken(oAuth2User.getEmail());
+    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User,String accessToken,String refreshToken) throws IOException {
 
-        log.info("accesstoken:{}", accessToken);
-        log.info("refreshtoken:{}", refreshToken);
-        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
+                .queryParam("email",oAuth2User.getEmail())
+                .queryParam("socialId",oAuth2User.getSocialId())
+                .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
+                .build()
+                .encode(StandardCharsets.UTF_8)
+                .toUriString();
 
-        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-        jwtService.updateRefreshToken(oAuth2User.getSocialId(), refreshToken);
+        response.setHeader("Authorization-Access", accessToken);
+        response.setHeader("Authorization-Refresh", refreshToken);
+        response.setStatus(HttpStatus.OK.value());
+        response.sendRedirect(targetUrl);
+
+
     }
+
+
 }

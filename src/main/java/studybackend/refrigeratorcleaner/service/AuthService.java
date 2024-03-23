@@ -2,7 +2,6 @@ package studybackend.refrigeratorcleaner.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,19 +9,32 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import studybackend.refrigeratorcleaner.dto.ResetPasswordRequest;
 import studybackend.refrigeratorcleaner.dto.Role;
-import studybackend.refrigeratorcleaner.dto.VerifyEmailRequestDto;
-import studybackend.refrigeratorcleaner.dto.VerifyEmailResonseDto;
+import studybackend.refrigeratorcleaner.dto.request.*;
+import studybackend.refrigeratorcleaner.dto.response.ModifyAttributeResponse;
 import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
+import studybackend.refrigeratorcleaner.jwt.service.JwtService;
+import studybackend.refrigeratorcleaner.redis.entity.BlackList;
+import studybackend.refrigeratorcleaner.redis.entity.EmailAuthentication;
+import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
+import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
+import studybackend.refrigeratorcleaner.redis.repository.EmailAuthenticationRepository;
+import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
 import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Cleaner;
 
 
@@ -32,47 +44,51 @@ import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final BlackListRepository blackListRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailUtil emailUtil;
     private final AmazonS3Client amazonS3Client;
+    private final JwtService jwtService;
 
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @Value("default.profile")
+    @Value("${default.profile}")
     private String defaultProfile;
 
-    public VerifyEmailResonseDto sendEmail(String email) throws MessagingException {
+    public void sendEmail(EmailRequest emailRequest) {
 
-        if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
-        }
-
+        validateEmail(emailRequest);
         String randomNum = String.valueOf((new Random().nextInt(9000) + 1000));
-        LocalDateTime createTime = LocalDateTime.now();
-        LocalDateTime expireTime = LocalDateTime.now().plusMinutes(10);
 
-        emailUtil.sendEmail(email, randomNum);
+        long expireTime = LocalDateTime.now().plusMinutes(10)
+                .atZone(ZoneId.systemDefault())
+                .toEpochSecond();
 
-        VerifyEmailResonseDto verifyEmailResonseDto = VerifyEmailResonseDto.
-                builder()
-                .randomNum(randomNum)
-                .createTime(createTime)
-                .expireTime(expireTime)
-                .build();
+        emailUtil.sendEmail(emailRequest.getEmail(), randomNum);
+        String id = emailRequest.getEmail() + "_" + emailRequest.getEmailType() + "_" + emailRequest.getSocialType();
+        emailAuthenticationRepository.save(new EmailAuthentication(id, randomNum, expireTime));
 
-        return verifyEmailResonseDto;
+    }
 
+    public void validateEmail(EmailRequest emailRequest) {
+        if (userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("sign-up")) {
+            throw new CustomException(EXIST_USER_EMAIL_SOCIALTYPE);
+        }
+        else if (!userRepository.existsByEmailAndSocialType(emailRequest.getEmail(),emailRequest.getSocialType()) && emailRequest.getEmailType().equals("reset-password")) {
+            throw new CustomException(NOT_EXIST_USER_EMAIL_SOCIALTYPE);
+        }
     }
 
     @Transactional
     public void verifyNickName(String nickName) {
-
+        userRepository.deleteEverything();
         if (userRepository.existsByNickName(nickName)) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
+            throw new CustomException(EXIST_USER_NICKNAME);
         }
-        log.info("{}", nickName);
         User user=User.builder()
                 .nickName(nickName)
                 .role(Role.USER.getKey())
@@ -82,45 +98,55 @@ public class AuthService {
     }
 
 
-    public void verifyEmail(VerifyEmailRequestDto verifyEmailRequestDto) {
+    public void verifyEmail(VerifyEmailRequest verifyEmailRequest) {
+        String id = verifyEmailRequest.getEmail() + "_" + verifyEmailRequest.getEmailType() + "_" + verifyEmailRequest.getSocialType();
 
-        if (userRepository.existsByEmail(verifyEmailRequestDto.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+        if (userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
+                && verifyEmailRequest.getEmailType().equals("sign-up")) {
+            throw new CustomException(EXIST_USER_EMAIL_SOCIALTYPE);
         }
-        if (!verifyEmailRequestDto.getRandomNum().equals(verifyEmailRequestDto.getInputNum())) {
-            throw new RuntimeException("인증번호가 틀렸습니다.");
+        else if (!userRepository.existsByEmailAndSocialType(verifyEmailRequest.getEmail(), verifyEmailRequest.getSocialType())
+                && verifyEmailRequest.getEmailType().equals("reset-password")) {
+            throw new CustomException(NOT_EXIST_USER_EMAIL);
         }
-        if (verifyEmailRequestDto.getSendTime().isAfter(verifyEmailRequestDto.getExpireTime())) {
-            throw new RuntimeException("인증번호가 만료되었습니다.");
+        EmailAuthentication emailAuthentication = emailAuthenticationRepository.findById(id).orElseThrow(() -> new CustomException(NOT_EXIST_USER_EMAIL));
+        if (!emailAuthentication.getRandomNum()
+                .equals(verifyEmailRequest.getInputNum())) {
+            throw new CustomException(WRONG_CERTIFICATION_NUMBER);
+        }
+        if (emailAuthentication.getExp()<Instant.now().getEpochSecond()) {
+            throw new CustomException(EXPIRE_CERTIFICATION_NUMBER);
         }
     }
 
     @Transactional
-    public void signup(String email, String pw, MultipartFile multipartFile, String nickName) throws IOException {
+    public void signup(UserRequest userRequest) {
         String socialId = UUID.randomUUID().toString().replace("-", "").substring(0, 13);
-        String password = passwordEncoder.encode(pw);
+        String password = passwordEncoder.encode(userRequest.getPassword());
         String url;
 
-        url = createProfileUrl(multipartFile);
+        url = defaultProfile;
 
-        User user = userRepository.findByNickName(nickName).get();
-        user.updateAll(email, password, socialId,url,Refrigerator_Cleaner.getKey());
-        userRepository.save(user);
-        userRepository.deleteEverything();
+        User user = userRepository.findByNickName(userRequest.getNickName()).orElseThrow(()->new CustomException(EXIST_USER_NICKNAME));
+
+        user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
+        userRepository.saveAndFlush(user);
     }
 
-    private String createProfileUrl(MultipartFile multipartFile) throws IOException {
-        String url;
-        if (multipartFile.isEmpty()) {
-            url = defaultProfile;
-        } else {
-            String fileName = multipartFile.getOriginalFilename();
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(multipartFile.getContentType());
-            metadata.setContentLength(multipartFile.getSize());
-            amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
-            url = amazonS3Client.getUrl(bucket, fileName).toString();
-        }
+    @Transactional
+    public String updateProfileUrl(MultipartFile multipartFile,String nickName) throws IOException {
+
+        User user = userRepository.findByNickName(nickName).orElseThrow(() -> new CustomException(NOT_EXIST_USER_NICKNAME));
+        String fileName = multipartFile.getOriginalFilename();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(multipartFile.getContentType());
+        metadata.setContentLength(multipartFile.getSize());
+        amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
+        String url = amazonS3Client.getUrl(bucket, fileName).toString();
+
+        user.updateProfile(url);
+        userRepository.save(user);
+
         return url;
     }
 
@@ -128,17 +154,110 @@ public class AuthService {
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
 
         if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getRePassword())) {
-            throw new RuntimeException("비밀번호를 재입력 해주세요.");
+            throw new CustomException(WRONG_PASSWORD);
         }
 
-        if (resetPasswordRequest.getSocialType() != Refrigerator_Cleaner.getKey()) {
-            throw new RuntimeException("자체 서비스 회원가입 시 만든 비밀번호만 변경 가능합니다.");
+        if (!resetPasswordRequest.getSocialType().equals(Refrigerator_Cleaner.getKey())) {
+            throw new CustomException(NOT_REFRIGERATOR_SOCIALTYPE);
         }
 
         userRepository.findBySocialTypeAndEmail(resetPasswordRequest.getSocialType(),resetPasswordRequest.getEmail())
-                .ifPresent(user -> {
+                .ifPresentOrElse(user -> {
                     user.updatePassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
                     userRepository.save(user);
-                });
+                },() -> new CustomException(NOT_EXIST_USER_EMAIL_SOCIALTYPE));
+    }
+
+    public TokenResponse validateToken(String refreshToken, String accessTokenSocialId) {
+
+        if (!jwtService.isTokenValid(refreshToken)) {
+            throw new CustomException(NOT_VALID_REFRESHTOKEN);
+        }
+
+        if (blackListRepository.existsByAccessToken(refreshToken)) {
+            throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(accessTokenSocialId);
+        String newRefreshToken = jwtService.generateRefreshToken(accessTokenSocialId);
+
+        RefreshToken token = refreshTokenRepository.findBySocialId(accessTokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+        token.updateRefreshToken(newRefreshToken);
+
+        refreshTokenRepository.save(token);
+
+        TokenResponse tokenResponse=TokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
+
+        return tokenResponse;
+    }
+
+    @Transactional
+    public void changeNickName(ValidateNickNameRequest validateNickNameRequest) {
+        Optional<User> existNickName = userRepository.findByNickName(validateNickNameRequest.getPresentNickName());
+        Optional<User> changeNickName = userRepository.findByNickName(validateNickNameRequest.getChangeNickName());
+
+        if (existNickName.isEmpty()) {
+            throw new CustomException(NOT_EXIST_USER_NICKNAME);
+        }
+        if (changeNickName.isEmpty()) {
+            User user = existNickName.get();
+            user.updateNickname(validateNickNameRequest.getChangeNickName());
+            userRepository.save(user);
+
+            return;
+        }
+
+        throw new CustomException(EXIST_USER_NICKNAME);
+
+    }
+
+    @Transactional
+    public void logout(String accessToken, String socialId) {
+
+        userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+
+
+        if (!jwtService.isTokenValid(accessToken)) {
+            throw new CustomException(NOT_VALID_ACCESSTOKEN);
+        }
+
+        String tokenSocialId = jwtService.extractSocialId(accessToken);
+
+        if (!tokenSocialId.equals(socialId)) {
+            throw new CustomException(NOT_EQUAL_EACH_TOKEN_SOCIALID);
+        }
+
+        if (blackListRepository.existsByAccessToken(accessToken)) {
+            throw new CustomException(EXIST_REFRESHTOKEN_BLACKLIST);
+        }
+
+        RefreshToken token = refreshTokenRepository.findBySocialId(tokenSocialId).orElseThrow(() -> new CustomException(NOT_EXIST_REFRESHTOKEN));
+
+        refreshTokenRepository.delete(token);
+        Long leftTime = calculateTimeLeft(accessToken);
+        blackListRepository.save(new BlackList(socialId, accessToken, leftTime));
+
+    }
+
+    public Long calculateTimeLeft(String accessToken) {
+        Instant expirationTime = jwtService.extractTime(accessToken).toInstant();
+        Instant now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+        return Duration.between(now, expirationTime).getSeconds();
+    }
+
+    public ModifyAttributeResponse getEmailNickName(String socialId) {
+
+        User user = userRepository.findBySocialId(socialId).orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
+
+        ModifyAttributeResponse modifyAttributeResponse=ModifyAttributeResponse
+                .builder()
+                .email(user.getEmail())
+                .nickName(user.getNickName())
+                .build();
+
+        return modifyAttributeResponse;
     }
 }

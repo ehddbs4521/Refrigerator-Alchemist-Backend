@@ -5,8 +5,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
+import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
 import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
 import studybackend.refrigeratorcleaner.entity.Recipe;
+import studybackend.refrigeratorcleaner.entity.Recommend;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.repository.RecipeRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -78,15 +80,36 @@ class RecipeServiceTest {
                 .recipe(recipeList)
                 .ingredients(ingredientList)
                 .foodName("김치찌개")
-                .imgFlag(false)
                 .build();
 
         return saveRequestDto;
     }
 
     //입력받은 유저로 입력받은 레시피 저장
-//    public Long saveRecipe(User user, Recipe recipe){
-//    }
+    public void saveRecipe(User user, int n){
+        Recipe recipe = Recipe.builder()
+                .user(user)
+                .foodName("foodName"+n)
+                .recipeStr("testRecipeStr"+n)
+                .ingredientStr("ingredientStr"+n)
+                .build();
+
+        recipeRepository.save(recipe);
+    }
+
+    //입력받은 유저로 입력받은 레시피 저장&레시피ID 반환
+    public Long saveAndGetRecipe(User user){
+        Recipe recipe = Recipe.builder()
+                .user(user)
+                .foodName("foodName")
+                .recipeStr("testRecipeStr")
+                .ingredientStr("ingredientStr")
+                .build();
+
+        recipeRepository.save(recipe);
+
+        return recipe.getRecipeId();
+    }
 
     //List<String> -> 요소뒤에 /붙인 String으로 변환해서 반환
     public String listToString(List<String> strList){
@@ -120,7 +143,6 @@ class RecipeServiceTest {
         assertEquals(saveRequestDto.getFoodName(), savedRecipe.getFoodName());
         assertEquals(strRecipe, savedRecipe.getRecipeStr());
         assertEquals(strIngredient, savedRecipe.getIngredientStr());
-        System.out.println(savedRecipe.getImgURL());
         System.out.println(savedRecipe.getRecipeStr());
         System.out.println(savedRecipe.getIngredientStr());
     }
@@ -132,9 +154,20 @@ class RecipeServiceTest {
         //멤버 생성
         User user = createUser();
 
-        //레시피 생성
-        //레시피 저장
+        //레시피 생성 및 저장
+        saveRecipe(user, 1);
+        saveRecipe(user, 2);
+        saveRecipe(user, 3);
+        saveRecipe(user, 4);
+
         //레시피 목록 조회
+        List<MyRecipeDto> myRecipeDtoList = recipeService.getRecipeList(user.getSocialId());
+
+        assertEquals(myRecipeDtoList.size(), 4);
+        for(int i = 0; i<4; i++){
+            assertEquals(myRecipeDtoList.get(i).getFoodName(), "foodName"+(4-i));
+            assertEquals(myRecipeDtoList.get(i).getIngredientStr(), "ingredientStr"+(4-i));
+        }
     }
 
     @Test
@@ -144,8 +177,14 @@ class RecipeServiceTest {
         //멤버 생성
         User user = createUser();
 
-        //레시피 생성
-        //레시피 저장
+        //레시피 생성 및 저장
+        Long recipeId1 = saveAndGetRecipe(user);
+
         //상세 레시피 조회
+        DetailRecipeDto detailRecipeDto = recipeService.getDetailRecipe(recipeId1);
+
+        assertEquals(detailRecipeDto.getFoodName(), "foodName");
+        assertEquals(detailRecipeDto.getRecipe(), recipeService.StringToList("testRecipeStr"));
+        assertEquals(detailRecipeDto.getIngredients(), recipeService.StringToList("ingredientStr"));
     }
 }

@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.config;
+package studybackend.refrigeratorcleaner.aws.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MyRecipeDto {
+public class MyRecipeDto { //레시피 목록 응답
 
     private Long recipeId;
 

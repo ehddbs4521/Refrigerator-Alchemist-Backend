@@ -1,11 +1,12 @@
 package studybackend.refrigeratorcleaner.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
@@ -14,12 +15,12 @@ import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.service.RecipeService;
-
+import lombok.extern.slf4j.Slf4j;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class RecipeController {
@@ -29,19 +30,24 @@ public class RecipeController {
 
     //이 레시피 저장 클릭시
     @PostMapping(value = "/recipe/save")
-    public @ResponseBody ResponseEntity saveRecipe(@RequestBody RecipeSaveRequestDto saveRequestDto, BindingResult bindingResult, Principal principal){
+    public @ResponseBody ResponseEntity saveRecipe(@RequestBody RecipeSaveRequestDto saveRequestDto){
 
-        //로그인한 사용자인지 검사
-        if (principal.getName() == null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
-        }
+        log.info("bbbbbbbb");
 
-        String socialId = principal.getName();
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserDetails principal = (UserDetails) authentication.getPrincipal();
+//        log.info("socialId:{}",principal.getUsername());
+
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String socialId = principal.getUsername();
+        log.info("socialId:{}",principal.getUsername());
         Long recipeId;
 
         //레시피 저장 수행
         try{
             recipeId = recipeService.saveRecipe(saveRequestDto, socialId);
+        }catch(CustomException ce){
+            throw new CustomException(ErrorCode.NOT_EXIST_USER_SOCIALID);
         }catch (Exception e){
             throw new CustomException(ErrorCode.SAVE_RECIPE_FAIL);
         }
@@ -50,39 +56,59 @@ public class RecipeController {
     }
 
     //저장한 레시피 간단목록
-    @GetMapping(value = "/recipe/myRecipe/{page}")
-    public @ResponseBody ResponseEntity myRecipeList(@PathVariable("page") Optional<Integer> page, Principal principal) {
+    @GetMapping("/recipe/myRecipe")
+    public @ResponseBody ResponseEntity myRecipeList() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principal = (UserDetails) authentication.getPrincipal();
+
+        log.info("socialId:{}",principal.getUsername());
+
+        String socialId = principal.getUsername();
 
         //로그인한 사용자인지 검사
-        if (principal.getName() == null){
+        if (socialId == "anonymousUser"){
             throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
         }
 
-        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 10);
-        String socialId = principal.getName();
-        Page<MyRecipeDto> myRecipeDtoPage;
+        List<MyRecipeDto> myRecipeDtoList;
 
         //레시피 목록 List<MyRecipeDto> 형태로 가져오기
         try {
-            myRecipeDtoPage = recipeService.getRecipeList(socialId, pageable);
+            myRecipeDtoList = recipeService.getRecipeList(socialId);
         }catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_GET_RECIPE_LIST);
         }
 
-        return new ResponseEntity<Page<MyRecipeDto>>(myRecipeDtoPage, HttpStatus.OK);
+        return new ResponseEntity<List<MyRecipeDto>>(myRecipeDtoList, HttpStatus.OK);
     }
 
     //저장한 레시피 상세페이지
     @GetMapping("/recipe/myRecipe/{recipeId}")
-    public @ResponseBody ResponseEntity detailRecipe(@PathVariable("recipeId") Long recipeId, Principal principal) {
+    public @ResponseBody ResponseEntity detailRecipe(@PathVariable("recipeId") Long recipeId) {
 
-        //로그인한 사용자인지 검사
-        if (principal.getName() == null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principal = (UserDetails) authentication.getPrincipal();
+
+        log.info("socialId:{}",principal.getUsername());
+
+        String socialId = principal.getUsername();
+
+        //해당 유저가 조회할 수 있는 레시피인지.
+        Boolean validated = null;
+
+        try{
+            validated = recipeService.validateRecipeUser(recipeId, socialId);
+        }catch (CustomException ce){
+            if(ce.getErrorCode() == ErrorCode.NOT_EXIST_USER_SOCIALID){
+                throw new CustomException(ErrorCode.NOT_EXIST_USER_SOCIALID);
+            }else{
+                throw new CustomException(ErrorCode.NO_EXIST_RECIPEID);
+            }
         }
 
         //로그인한 사용자가 해당 레시피를 저장한 사용자가 맞는지 검사
-        if(!recipeService.validateRecipeUser(recipeId, principal.getName())){
+        if(!validated){
             throw new CustomException(ErrorCode.NO_PERMISSION_FOR_RECIPE);
         }
 
@@ -91,7 +117,10 @@ public class RecipeController {
         //해당 레시피의 상세 정보를 DetailRecipeDto 형태로 가져온다.
         try{
             detailRecipeDto = recipeService.getDetailRecipe(recipeId);
-        }catch (Exception e){
+        }catch (CustomException ce){
+            throw new CustomException(ErrorCode.NO_EXIST_RECIPEID);
+        }
+        catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_GET_DETAIL_RECIPE);
         }
 
@@ -122,7 +151,6 @@ public class RecipeController {
                 .recipe(recipeList)
                 .ingredients(ingredientList)
                 .foodName("김치찌개")
-                .imgFlag(false)
                 .build();
 
         String socialId = "MySocialId" ;// 워크벤치에서 테스트 유저 만들기
@@ -138,17 +166,16 @@ public class RecipeController {
 
     @GetMapping(value = "/MyRecipe")
     public @ResponseBody ResponseEntity myRecipe() {
-        Pageable pageable = PageRequest.of(1, 10);
-        Page<MyRecipeDto> myRecipeDtoPage;
+        List<MyRecipeDto> myRecipeDtoList;
 
         //레시피 목록 List<MyRecipeDto> 형태로 가져오기
         try {
-            myRecipeDtoPage = recipeService.getRecipeList("MySocialId", pageable);
+            myRecipeDtoList = recipeService.getRecipeList("MySocialId");
         }catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_GET_RECIPE_LIST);
         }
 
-        return new ResponseEntity<Page<MyRecipeDto>>(myRecipeDtoPage, HttpStatus.OK);
+        return new ResponseEntity<List<MyRecipeDto>>(myRecipeDtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/myRecipe/{recipeId}")

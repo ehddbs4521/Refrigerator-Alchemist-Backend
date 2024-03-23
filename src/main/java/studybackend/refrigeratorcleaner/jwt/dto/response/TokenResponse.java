@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.oauth.dto;
+package studybackend.refrigeratorcleaner.jwt.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class TokenDto {
-    private String grantType;
-    private String accessToken;
-    private Long accessTokenExpiresIn;
-    private String refreshToken;
+@AllArgsConstructor
+public class TokenResponse {
 
+    private String accessToken;
+    private String refreshToken;
 }

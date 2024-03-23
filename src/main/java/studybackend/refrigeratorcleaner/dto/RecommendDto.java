@@ -10,7 +10,7 @@ import java.util.List;
 //RecommendService의 반환으로 쓰이는 dto
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecommendDto {
+public class RecommendDto { //추천받기 응답
 
     private String foodName;
     private List<String> ingredients;

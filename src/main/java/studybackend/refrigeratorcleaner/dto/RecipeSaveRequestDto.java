@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeSaveRequestDto {
+public class RecipeSaveRequestDto { //레시피 저장 요청
 
     @NotBlank(message = "요리명은 필수 입력 값입니다.")
     private String foodName;
@@ -25,14 +25,11 @@ public class RecipeSaveRequestDto {
     @Size(min = 1, message = "최소 한 줄 이상의 레시피가 필요합니다.")
     private List<String> recipe;
 
-    private Boolean imgFlag;
-
     @Builder
-    public RecipeSaveRequestDto(String foodName, List<String> ingredients, List<String> recipe, Boolean imgFlag) {
+    public RecipeSaveRequestDto(String foodName, List<String> ingredients, List<String> recipe) {
         this.foodName = foodName;
         this.ingredients = ingredients;
         this.recipe = recipe;
-        this.imgFlag = imgFlag;
     }
 
 

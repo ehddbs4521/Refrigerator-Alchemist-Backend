@@ -24,27 +24,66 @@ public class RecommendController {
     @PostMapping(value = "/recipe/recommend")
     public @ResponseBody ResponseEntity recommend(@RequestBody IngredientRequestDto ingredients){
 
-        RecommendDto recommendDto;
-        log.info("dqdqdwqd");
+        log.info("bbbbbbbbbb");
+        //재료 입력했는지 검사
+        if(ingredients.getIngredients().size() == 0){
+            throw new CustomException(ErrorCode.NO_INGREDIENT);
+        }
+
+        Long recommendId;
 
         try{
-            recommendDto = recommendService.recommend(ingredients.getIngredients());
-        } catch (Exception e){
+            recommendId = recommendService.recommend(ingredients.getIngredients());
+        }catch (CustomException ce){
+            throw new CustomException(ErrorCode.WRONG_INGREDIENT);
+        }catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_MAKE_RECIPE);
+        }
+
+        return new ResponseEntity<Long>(recommendId, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/recipe/recommend/{recommendId}")
+    public @ResponseBody ResponseEntity getRecommended(@PathVariable("recommendId") Long recommendId){
+
+        RecommendDto recommendDto;
+
+        try{
+            recommendDto = recommendService.getRecommended(recommendId);
+        }catch (CustomException ce){
+            throw new CustomException(ErrorCode.NO_EXIST_RECOMMENDID);
         }
 
         return new ResponseEntity<RecommendDto>(recommendDto, HttpStatus.OK);
     }
 
+    //////////////////////////////////////ip 테스트//////////////////////////////////////////
     @GetMapping(value = "/recipe/recommend")
     public @ResponseBody ResponseEntity recommend(){
 
-        RecommendDto recommendDto;;
+        Long recommendId;;
 
         try{
-            recommendDto = recommendService.recommend(makeApi().getIngredients());
+            recommendId = recommendService.recommend(makeApi().getIngredients());
+        }catch (CustomException ce) {
+            throw new CustomException(ErrorCode.WRONG_INGREDIENT);
         }catch (Exception e){
             throw new CustomException(ErrorCode.FAILED_TO_MAKE_RECIPE);
+        }
+
+        return new ResponseEntity<Long>(recommendId, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getRecommended")
+    public @ResponseBody ResponseEntity getRecommended(){
+
+        RecommendDto recommendDto;
+        Long recommendId = Long.parseLong("4");
+
+        try{
+            recommendDto = recommendService.getRecommended(recommendId);
+        }catch (CustomException ce){
+            throw new CustomException(ErrorCode.NO_EXIST_RECOMMENDID);
         }
 
         return new ResponseEntity<RecommendDto>(recommendDto, HttpStatus.OK);
@@ -54,7 +93,7 @@ public class RecommendController {
         IngredientRequestDto ingredientRequestDto = new IngredientRequestDto();
         ingredientRequestDto.setIngredients(new ArrayList<>());
 
-        ingredientRequestDto.getIngredients().add("계란");
+        ingredientRequestDto.getIngredients().add("휴대폰");
         ingredientRequestDto.getIngredients().add("파");
         ingredientRequestDto.getIngredients().add("김");
         return ingredientRequestDto;

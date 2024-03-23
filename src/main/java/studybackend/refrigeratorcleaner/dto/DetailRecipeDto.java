@@ -1,9 +1,5 @@
 package studybackend.refrigeratorcleaner.dto;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DetailRecipeDto {
+public class DetailRecipeDto { //상세레시피 조회 서버 응답
 
     private String foodName;
 
@@ -21,15 +17,10 @@ public class DetailRecipeDto {
 
     private List<String> recipe;
 
-    private String imgURL;
-
     @Builder
-    public DetailRecipeDto(String foodName, List<String> ingredients, List<String> recipe, String imgURL) {
+    public DetailRecipeDto(String foodName, List<String> ingredients, List<String> recipe) {
         this.foodName = foodName;
         this.ingredients = ingredients;
         this.recipe = recipe;
-        this.imgURL = imgURL;
     }
-
-
 }
