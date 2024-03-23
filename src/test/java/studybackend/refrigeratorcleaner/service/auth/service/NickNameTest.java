@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth;
+package studybackend.refrigeratorcleaner.service.auth.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,7 @@ import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,7 +21,7 @@ public class NickNameTest {
     @Mock
     private UserRepository userRepository;
 
-      @InjectMocks
+    @InjectMocks
     private AuthService authService;
 
     @Test
@@ -32,9 +31,7 @@ public class NickNameTest {
         NickNameRequest nickNameRequest = new NickNameRequest("hello4521");
         when(userRepository.existsByNickName(nickNameRequest.getNickName())).thenReturn(true);
 
-        Throwable throwable = catchThrowable(() -> authService.verifyNickName(nickNameRequest.getNickName()));
-
-        assertThat(throwable)
+        assertThatCode(() -> authService.verifyNickName(nickNameRequest.getNickName()))
                 .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.EXIST_USER_NICKNAME.getMessage());
     }
