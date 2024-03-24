@@ -1,6 +1,12 @@
 package studybackend.refrigeratorcleaner;
 
-class RefrigeratorCleanerApplicationTests {
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@SpringBootTest
+class RefrigeratorCleanerApplicationTests {
+    @Test
+    void contextLoads() {
+    }
 
 }
