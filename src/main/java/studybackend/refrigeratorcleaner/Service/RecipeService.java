@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service;
+package studybackend.refrigeratorcleaner.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
 import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
-import studybackend.refrigeratorcleaner.entity.Recipe;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.Recipe;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
-import studybackend.refrigeratorcleaner.repository.RecipeRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.RecipeRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;

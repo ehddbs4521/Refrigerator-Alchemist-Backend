@@ -9,7 +9,7 @@ import studybackend.refrigeratorcleaner.dto.IngredientRequestDto;
 import studybackend.refrigeratorcleaner.dto.RecommendDto;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
-import studybackend.refrigeratorcleaner.service.RecommendService;
+import studybackend.refrigeratorcleaner.Service.RecommendService;
 
 import java.util.ArrayList;
 

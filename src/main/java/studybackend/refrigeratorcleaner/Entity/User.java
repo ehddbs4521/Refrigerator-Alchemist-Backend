@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.entity;
+package studybackend.refrigeratorcleaner.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

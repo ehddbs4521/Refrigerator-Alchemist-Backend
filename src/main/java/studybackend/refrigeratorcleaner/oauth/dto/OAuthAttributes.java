@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import studybackend.refrigeratorcleaner.dto.Role;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 
 import java.util.Map;
 import java.util.UUID;

@@ -10,9 +10,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StreamUtils;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -14,12 +14,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.redis.entity.BlackList;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 import java.io.IOException;
 import java.util.Optional;

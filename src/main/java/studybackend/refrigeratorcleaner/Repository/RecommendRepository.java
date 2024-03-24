@@ -1,8 +1,8 @@
-package studybackend.refrigeratorcleaner.repository;
+package studybackend.refrigeratorcleaner.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import studybackend.refrigeratorcleaner.entity.Recommend;
+import studybackend.refrigeratorcleaner.Entity.Recommend;
 
 import java.util.Optional;
 

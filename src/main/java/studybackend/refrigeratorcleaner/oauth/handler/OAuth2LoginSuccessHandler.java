@@ -12,13 +12,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import studybackend.refrigeratorcleaner.dto.Role;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.oauth.dto.CustomOAuth2User;
 import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

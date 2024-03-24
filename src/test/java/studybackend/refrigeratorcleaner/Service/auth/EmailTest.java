@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth;
+package studybackend.refrigeratorcleaner.Service.auth;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,8 @@ import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.redis.entity.EmailAuthentication;
 import studybackend.refrigeratorcleaner.redis.repository.EmailAuthenticationRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
-import studybackend.refrigeratorcleaner.service.AuthService;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
+import studybackend.refrigeratorcleaner.Service.AuthService;
 
 import java.util.Optional;
 

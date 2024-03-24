@@ -10,12 +10,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.Transactional;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 import java.util.Optional;
 

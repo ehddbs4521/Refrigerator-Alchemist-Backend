@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.entity;
+package studybackend.refrigeratorcleaner.Entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,15 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "recommend")
+@Table(name = "recipe")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Recommend {
+public class Recipe {
 
     @Id
-    @Column(name = "recommend_id")
+    @Column(name = "recipe_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recommendId;
+    private Long recipeId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_socialId", referencedColumnName = "socialId")
+    private User user;
 
     @Column(name = "food_name")
     private String foodName;
@@ -27,7 +31,8 @@ public class Recommend {
     private String recipeStr;
 
     @Builder
-    public Recommend(String foodName, String ingredientStr, String recipeStr) {
+    public Recipe(User user, String foodName, String ingredientStr, String recipeStr) {
+        this.user = user;
         this.foodName = foodName;
         this.ingredientStr = ingredientStr;
         this.recipeStr = recipeStr;

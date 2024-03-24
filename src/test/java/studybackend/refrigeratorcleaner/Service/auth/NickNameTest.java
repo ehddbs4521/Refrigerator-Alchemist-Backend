@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth;
+package studybackend.refrigeratorcleaner.Service.auth;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import studybackend.refrigeratorcleaner.dto.request.NickNameRequest;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
-import studybackend.refrigeratorcleaner.service.AuthService;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
+import studybackend.refrigeratorcleaner.Service.AuthService;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;

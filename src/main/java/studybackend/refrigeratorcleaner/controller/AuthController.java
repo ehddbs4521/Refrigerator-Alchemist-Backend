@@ -16,7 +16,7 @@ import studybackend.refrigeratorcleaner.dto.request.*;
 import studybackend.refrigeratorcleaner.jwt.dto.request.SocialIdRequest;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
-import studybackend.refrigeratorcleaner.service.AuthService;
+import studybackend.refrigeratorcleaner.Service.AuthService;
 
 @Slf4j
 @RequestMapping("/auth")

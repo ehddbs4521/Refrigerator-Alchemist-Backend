@@ -28,7 +28,7 @@ import studybackend.refrigeratorcleaner.oauth.handler.OAuth2LoginSuccessHandler;
 import studybackend.refrigeratorcleaner.oauth.service.CustomOAuth2UserService;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 
 @Slf4j
 @Configuration

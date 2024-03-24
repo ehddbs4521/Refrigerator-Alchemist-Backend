@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service;
+package studybackend.refrigeratorcleaner.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +9,10 @@ import studybackend.refrigeratorcleaner.dto.RecommendDto;
 import studybackend.refrigeratorcleaner.dto.gptDto.ChatRequest;
 import studybackend.refrigeratorcleaner.dto.gptDto.ChatResponse;
 import studybackend.refrigeratorcleaner.dto.gptDto.Message;
-import studybackend.refrigeratorcleaner.entity.Recommend;
+import studybackend.refrigeratorcleaner.Entity.Recommend;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
-import studybackend.refrigeratorcleaner.repository.RecommendRepository;
+import studybackend.refrigeratorcleaner.Repository.RecommendRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;

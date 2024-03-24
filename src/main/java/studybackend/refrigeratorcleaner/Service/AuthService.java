@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service;
+package studybackend.refrigeratorcleaner.Service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.Role;
 import studybackend.refrigeratorcleaner.dto.request.*;
 import studybackend.refrigeratorcleaner.dto.response.ModifyAttributeResponse;
-import studybackend.refrigeratorcleaner.entity.User;
+import studybackend.refrigeratorcleaner.Entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
@@ -22,7 +22,7 @@ import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.redis.repository.EmailAuthenticationRepository;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
-import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.Repository.UserRepository;
 import studybackend.refrigeratorcleaner.util.EmailUtil;
 
 import java.io.IOException;

@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import studybackend.refrigeratorcleaner.dto.request.NickNameRequest;
 import studybackend.refrigeratorcleaner.dto.request.ValidateNickNameRequest;
 import studybackend.refrigeratorcleaner.dto.response.ModifyAttributeResponse;
-import studybackend.refrigeratorcleaner.service.AuthService;
+import studybackend.refrigeratorcleaner.Service.AuthService;
 
 import java.io.IOException;
 import java.util.HashMap;
