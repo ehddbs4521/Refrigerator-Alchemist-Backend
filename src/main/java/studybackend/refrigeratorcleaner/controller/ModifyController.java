@@ -42,11 +42,4 @@ public class ModifyController {
         return ResponseEntity.ok(profile);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<ModifyAttributeResponse> getEmailNickName() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String socialId = principal.getUsername();
-        ModifyAttributeResponse emailNickName = authService.getEmailNickName(socialId);
-        return ResponseEntity.ok(emailNickName);
-    }
 }
