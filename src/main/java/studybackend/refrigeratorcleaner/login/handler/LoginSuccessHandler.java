@@ -61,6 +61,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
             response.setHeader("Authorization-Access", "Bearer " + accessToken);
             response.setHeader("Authorization-Refresh", "Bearer " + refreshToken);
+            response.setHeader("email", email);
             response.setHeader("nickName", userInfo.getNickName());
             response.setHeader("socialId", socialId);
             response.setStatus(HttpStatus.OK.value());
