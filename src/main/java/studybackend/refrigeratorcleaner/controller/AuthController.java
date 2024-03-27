@@ -20,7 +20,6 @@ import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 @Slf4j
-@RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -28,28 +27,21 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
-    @PostMapping("/send-email")
+    @PostMapping("/auth/email")
     public ResponseEntity<Object> sendEmail(@RequestBody EmailRequest emailRequest) {
 
         authService.sendEmail(emailRequest);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/verify-email")
+    @PostMapping("/auth/register/authentication/number")
     public ResponseEntity<Object> verifyEmail(@RequestBody VerifyEmailRequest verifyEmailRequest) {
 
         authService.verifyEmail(verifyEmailRequest);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/resend-email")
-    public ResponseEntity<Object> reSendEmail(@RequestBody EmailRequest emailRequest) {
-
-        authService.sendEmail(emailRequest);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping("/reset-password")
+    @PostMapping("/auth/reset/password")
     public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         authService.resetPassword(resetPasswordRequest);
@@ -57,7 +49,7 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/verify-nickname")
+    @PostMapping("/auth/register/authentication/nickname")
     public ResponseEntity<Object> verifyNickName(@RequestBody NickNameRequest nickNameRequest) {
 
         authService.verifyNickName(nickNameRequest.getNickName());
@@ -65,7 +57,7 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/auth/register")
     public ResponseEntity<Object> signup(@Valid @RequestBody UserRequest userRequest){
 
         authService.signup(userRequest);
@@ -73,7 +65,7 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/token/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request) {
 
         String accessToken = jwtService.extractAccessToken(request).get();
@@ -84,12 +76,14 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/token/reissue")
-    public ResponseEntity<Object> refresh(HttpServletRequest request, HttpServletResponse response, @RequestBody SocialIdRequest socialIdRequest) {
+    @PostMapping("/reissue")
+    public ResponseEntity<Object> refresh(HttpServletRequest request, HttpServletResponse response) {
 
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String socialId = principal.getUsername();
         String accessToken = jwtService.extractAccessToken(request).get();
         String refreshToken = jwtService.extractRefreshToken(request).get();
-        TokenResponse tokenResponse = authService.validateToken(accessToken,refreshToken, socialIdRequest.getSocialId());
+        TokenResponse tokenResponse = authService.validateToken(accessToken,refreshToken, socialId);
         jwtService.setTokens(response, tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 
         return new ResponseEntity<>(HttpStatus.OK);

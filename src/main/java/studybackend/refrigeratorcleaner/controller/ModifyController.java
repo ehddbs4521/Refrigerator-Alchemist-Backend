@@ -24,7 +24,7 @@ public class ModifyController {
 
     private final AuthService authService;
 
-    @PostMapping("/change-nickname")
+    @PostMapping("/reset/nickname")
     public ResponseEntity<Object> changeNickName(@RequestBody ValidateNickNameRequest validateNickNameRequest) {
 
         authService.changeNickName(validateNickNameRequest);
@@ -32,7 +32,7 @@ public class ModifyController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/change-profile")
+    @PostMapping("/reset/profile")
     public ResponseEntity<Object> changeProfile(@RequestPart(value = "nickName") NickNameRequest nickNameRequest, @RequestPart(value = "file") MultipartFile multipartFile) throws IOException {
 
         String updateProfileUrl = authService.updateProfileUrl(multipartFile, nickNameRequest.getNickName());
