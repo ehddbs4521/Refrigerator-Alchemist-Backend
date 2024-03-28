@@ -15,6 +15,8 @@ import studybackend.refrigeratorcleaner.dto.response.ModifyAttributeResponse;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
+import studybackend.refrigeratorcleaner.jwt.error.JwtErrorHandler;
+import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.redis.entity.BlackList;
 import studybackend.refrigeratorcleaner.redis.entity.EmailAuthentication;
@@ -51,6 +53,7 @@ public class AuthService {
     private final EmailUtil emailUtil;
     private final AmazonS3Client amazonS3Client;
     private final JwtService jwtService;
+    private final JwtErrorHandler jwtErrorHandler;
 
 
     @Value("${cloud.aws.s3.bucket}")
@@ -172,9 +175,8 @@ public class AuthService {
     @Transactional
     public TokenResponse validateToken(String accessToken, String refreshToken, String accessTokenSocialId) {
 
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new CustomException(NOT_VALID_REFRESHTOKEN);
-        }
+        TokenStatus tokenValid = jwtService.isTokenValid(refreshToken);
+        jwtErrorHandler.tokenError(tokenValid);
 
         if (blackListRepository.existsByAccessToken(accessToken)) {
             throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);
@@ -224,9 +226,8 @@ public class AuthService {
         }
 
 
-        if (!jwtService.isTokenValid(accessToken)) {
-            throw new CustomException(NOT_VALID_ACCESSTOKEN);
-        }
+        TokenStatus tokenValid = jwtService.isTokenValid(accessToken);
+        jwtErrorHandler.tokenError(tokenValid);
 
         Optional<String> token = jwtService.extractSocialId(accessToken);
         if (token.isEmpty()) {

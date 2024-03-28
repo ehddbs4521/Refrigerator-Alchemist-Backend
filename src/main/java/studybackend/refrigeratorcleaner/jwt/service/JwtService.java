@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import javax.crypto.SecretKey;
@@ -16,8 +16,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
-
-import static studybackend.refrigeratorcleaner.error.ErrorCode.NOT_EXTRACT_SOCIALID;
 
 @Service
 @Getter
@@ -30,7 +28,7 @@ public class JwtService {
     private static final String EMAIL_CLAIM = "email";
     private static final String SOCIAL_TYPE = "socialType";
     private static final String SOCIAL_ID = "socialId";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2;            // 유효기간 2시간
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1;            // 유효기간 2시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 유효기간 14일
 
     private String accessHeader;
@@ -108,23 +106,22 @@ public class JwtService {
 
     }
 
-    public boolean isTokenValid(String token) {
+    public TokenStatus isTokenValid(String token) {
         try {
             Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
-            return true;
+            return TokenStatus.SUCCESS;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            return TokenStatus.WRONG_SIGNATURE;
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            return TokenStatus.ILLEGAL_TOKEN;
         }
-        return false;
     }
 
     public void setTokens(HttpServletResponse response, String accessToken, String refreshToken) {

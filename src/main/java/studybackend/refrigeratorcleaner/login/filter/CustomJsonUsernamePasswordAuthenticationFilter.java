@@ -64,7 +64,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
 
             return this.getAuthenticationManager().authenticate(authRequest);
         } catch (CustomException e) {
-            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
             return null;
         }
 

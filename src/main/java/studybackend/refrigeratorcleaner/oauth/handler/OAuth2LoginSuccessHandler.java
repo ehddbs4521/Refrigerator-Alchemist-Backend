@@ -74,7 +74,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 refreshTokenRepository.save(token.get());
             }
         } catch (CustomException e) {
-            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
         }
 
     }

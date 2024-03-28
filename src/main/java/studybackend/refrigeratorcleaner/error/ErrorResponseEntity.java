@@ -8,14 +8,14 @@ import org.springframework.http.ResponseEntity;
 @Builder
 public class ErrorResponseEntity {
     private int status;
-    private String message;
+    private String code;
 
     public static ResponseEntity<ErrorResponseEntity> toResponseEntity(ErrorCode e){
         return ResponseEntity
                 .status(e.getStatus())
                 .body(ErrorResponseEntity.builder()
                         .status(e.getStatus().value())
-                        .message(e.getMessage())
+                        .code(e.getCode())
                         .build()
                 );
     }

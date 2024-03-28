@@ -16,6 +16,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.jwt.error.JwtErrorHandler;
+import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.redis.entity.BlackList;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
@@ -32,11 +34,12 @@ import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-    private static final String LOGIN_CHECK_URL = "/token/login";
+    private static final String LOGIN_CHECK_URL = "/login";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final BlackListRepository blackListRepository;
+    private final JwtErrorHandler jwtErrorHandler;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -51,19 +54,23 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String accessToken = jwtService.extractAccessToken(request)
-                    .filter(jwtService::isTokenValid)
-                    .orElse(null);
+            Optional<String> accessToken = jwtService.extractAccessToken(request);
 
-            if (accessToken != null) {
+            if (accessToken.isEmpty()) {
+                throw new CustomException(NOT_VALID_ACCESSTOKEN);
+            }
+
+            TokenStatus tokenStatus = jwtService.isTokenValid(accessToken.get());
+
+            if (tokenStatus.equals(TokenStatus.SUCCESS)) {
                 checkAccessTokenAndAuthentication(request, response, filterChain);
                 return;
             }
 
-            throw new CustomException(NOT_VALID_ACCESSTOKEN);
+            jwtErrorHandler.tokenError(tokenStatus);
 
         } catch (CustomException e) {
-            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
         }
 
     }
@@ -71,15 +78,25 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         try {
-            String accessToken = jwtService.extractAccessToken(request)
-                    .filter(jwtService::isTokenValid)
-                    .orElseThrow(() -> new CustomException(NOT_EXTRACT_ACCESSTOKEN));
+            Optional<String> accessToken = jwtService.extractAccessToken(request);
 
-            Optional<String> token = jwtService.extractSocialId(accessToken);
-            if (token.isEmpty()) {
+            if (accessToken.isEmpty()) {
+                throw new CustomException(NOT_VALID_ACCESSTOKEN);
+            }
+
+            TokenStatus tokenStatus = jwtService.isTokenValid(accessToken.get());
+
+            if (tokenStatus.equals(TokenStatus.SUCCESS)) {
+                checkAccessTokenAndAuthentication(request, response, filterChain);
+            }
+
+            jwtErrorHandler.tokenError(tokenStatus);
+
+            Optional<String> tokenSocialId = jwtService.extractSocialId(accessToken.get());
+            if (tokenSocialId.isEmpty()) {
                 throw new CustomException(NOT_EXTRACT_SOCIALID);
             }
-            String socialID = token.get();
+            String socialID = tokenSocialId.get();
             User user = userRepository.findBySocialId(socialID)
                     .orElseThrow(() -> new CustomException(NOT_EXIST_USER_SOCIALID));
             Optional<BlackList> blackList = blackListRepository.findBySocialId(socialID);
@@ -92,7 +109,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (CustomException e) {
-            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
         }
     }
 

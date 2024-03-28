@@ -66,7 +66,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             response.setHeader("socialId", socialId);
             response.setStatus(HttpStatus.OK.value());
         } catch (CustomException e) {
-            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage());
+            sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
         }
 
     }
