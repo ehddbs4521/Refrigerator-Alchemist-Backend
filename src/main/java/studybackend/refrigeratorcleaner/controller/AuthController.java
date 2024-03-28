@@ -65,7 +65,7 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/token/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request) {
 
         String accessToken = jwtService.extractAccessToken(request).get();

@@ -32,7 +32,7 @@ import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-    private static final String LOGIN_CHECK_URL = "/login";
+    private static final String LOGIN_CHECK_URL = "/token/login";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
