@@ -30,8 +30,17 @@ public enum ErrorCode {
     NOT_REFRIGERATOR_SOCIALTYPE(HttpStatus.BAD_REQUEST,"RAC4","자체 서비스 회원가입 시 만든 비밀번호만 변경 가능합니다."),
     SEND_EMAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"RAS1","이메일 전송을 실패했습니다."),
     NOT_EQUAL_EACH_TOKEN_SOCIALID(HttpStatus.BAD_REQUEST, "RAT11","로그인한 사용자의 Refresh Token이 아닙니다"),
-    ILLEGAL_TOKEN(HttpStatus.BAD_REQUEST, "RAT12","JWT 토큰이 잘못되었습니다.");
-
+    ILLEGAL_TOKEN(HttpStatus.BAD_REQUEST, "RAT12","JWT 토큰이 잘못되었습니다."),
+    WRONG_INGREDIENT(HttpStatus.NOT_ACCEPTABLE, "", "적절하지 못한 재료가 있습니다."),
+    NO_INGREDIENT(HttpStatus.BAD_REQUEST, "","입력된 재료가 없습니다. 재료를 입력해 주세요."),
+    NO_PERMISSION_FOR_RECIPE(HttpStatus.FORBIDDEN, "","해당 레시피에 대한 조회 권한이 없습니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "","인증되지 않은 유저입니다."),
+    SAVE_RECIPE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"","레시피 저장을 실패했습니다."),
+    FAILED_TO_GET_RECIPE_LIST(HttpStatus.INTERNAL_SERVER_ERROR, "","레시피 목록 조회에 실패했습니다."),
+    FAILED_TO_GET_DETAIL_RECIPE(HttpStatus.INTERNAL_SERVER_ERROR, "","상세 레시피 조회에 실패했습니다."),
+    FAILED_TO_MAKE_RECIPE(HttpStatus.INTERNAL_SERVER_ERROR, "","추천 레시피 생성에 실패했습니다."),
+    NO_EXIST_RECIPEID(HttpStatus.NOT_ACCEPTABLE, "","해당 recipeId가 존재하지 않습니다."),
+    NO_EXIST_RECOMMENDID(HttpStatus.NOT_FOUND, "","해당 recommendId가 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;
