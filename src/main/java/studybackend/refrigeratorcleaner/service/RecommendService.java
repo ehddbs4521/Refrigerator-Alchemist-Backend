@@ -43,20 +43,8 @@ public class RecommendService {
         request.getMessages().add(new Message(
                 "system",
                 "You are a useful assistant who tells the user of cooking recipes that can be made with inputted ingredients."
-                        + " Just write a text without any character role."));
-        ChatResponse response = template.postForObject(chatApiURL, request, ChatResponse.class);
-
-        return response.getChoices().get(0).getMessage().getContent();
-    }
-
-    public String isCorrectIngredientChat(String prompt){
-        ChatRequest request = new ChatRequest(chatModel, prompt);
-        request.getMessages().add(new Message(
-                "system",
-                "You are a useful assistant who helps judge whether something is edible or not. "
-                + "Judge whether each item presented by the user is edible or not. "
-                + "Items are likely to be expressed in Korean. "
-                + "And just write a text without any character role."));
+                        + " Just write a text without any character role."
+                        + " And write it in Korean."));
         ChatResponse response = template.postForObject(chatApiURL, request, ChatResponse.class);
 
         return response.getChoices().get(0).getMessage().getContent();
@@ -75,22 +63,6 @@ public class RecommendService {
                 sb.append(", ");
         }
         String strIngredient = sb.toString();
-
-        //입력 받은 재료가 적절한 재료인지 검사
-//        String isWrongStr =
-//                "요리재료목록 : " + strIngredient
-//                + "\n 콤마로 구분된 요리재료목록 중에서 음식이 아닌것이 있으면 y를 출력하고 아니면 n을 출력해."
-//                + " y와 n 말고 다른 문장은 절대로 출력하지마.";
-//
-//        String isWrongResult = isCorrectIngredientChat(isWrongStr);
-//
-//        if (isWrongResult.equals("y") || isWrongResult.equals("Y")){
-//            log.info("isWrongStr\n" + isWrongStr);
-//            log.info("isWrongResult : " + isWrongResult);
-//            throw new CustomException(ErrorCode.WRONG_INGREDIENT);
-//        }
-//        log.info("isWrongStr\n" + isWrongStr);
-//        log.info("isWrongResult : " + isWrongResult);
 
         //음식 이름&재료 얻기
         String prompt = "재료: " + strIngredient + "\n이 재료들을 포함해서 만들 수 있는 요리 이름을 딱 한 가지 말해줘. 모든 재료를 사용하지 않아도 괜찮아. [ouput] 요리 이름 다음에 콜론(:)을 붙여줘 [ouput] 그 요리에 필요한 재료들을 콤마(,)로 구분해서 알려줘.\n"
@@ -121,8 +93,6 @@ public class RecommendService {
 
     public RecommendDto getRecommended(Long recommendId){
 
-        log.info("RecommendService.recommendId : "+recommendId);
-
         Recommend recommend = recommendRepository.findByRecommendId(recommendId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NO_EXIST_RECOMMENDID));
 
@@ -133,6 +103,7 @@ public class RecommendService {
                 .build();
 
         recommendRepository.delete(recommend);
+
         return recommendDto;
     }
 }

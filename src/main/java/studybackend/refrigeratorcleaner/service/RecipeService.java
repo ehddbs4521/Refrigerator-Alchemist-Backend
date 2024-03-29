@@ -9,10 +9,12 @@ import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
 import studybackend.refrigeratorcleaner.dto.RecipeSaveRequestDto;
 import studybackend.refrigeratorcleaner.entity.Recipe;
+import studybackend.refrigeratorcleaner.entity.Recommend;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.repository.RecipeRepository;
+import studybackend.refrigeratorcleaner.repository.RecommendRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.List;
 public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
+    private final RecommendRepository recommendRepository;
 
     //List<String> -> 요소뒤에 /붙인 String으로 변환해서 반환
     public String listToString(List<String> strList){
@@ -61,8 +64,6 @@ public class RecipeService {
                 .recipeStr(listToString(saveRequestDto.getRecipe()))
                 .build();
 
-        log.info("********************recipe saved********************");
-
         recipeRepository.save(recipe);
 
         return recipe.getRecipeId();
@@ -79,8 +80,7 @@ public class RecipeService {
     @Transactional(readOnly = true)
     //상세레시피 가져오기
     public DetailRecipeDto getDetailRecipe(Long recipeId){
-        Recipe recipe = recipeRepository.findByRecipeId(recipeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NO_EXIST_RECIPEID));
+        Recipe recipe = recipeRepository.findByRecipeId(recipeId).get();
         DetailRecipeDto detailRecipeDto = DetailRecipeDto.builder()
                 .foodName(recipe.getFoodName())
                 .ingredients(StringToList(recipe.getIngredientStr()))

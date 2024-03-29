@@ -50,7 +50,6 @@ class RecipeServiceTest {
                 .email("test@test.com")
                 .imageUrl("https://naengtul-profile.s3.ap-northeast-2.amazonaws.com/favicon.png")
                 .role("user")
-                .refreshToken("fdsfadfsadas")
                 .password("testpassword")
                 .socialId("MySocialId")
                 .nickName("test")
