@@ -1,12 +1,12 @@
-package studybackend.refrigeratorcleaner.Entity;
+package studybackend.refrigeratorcleaner.entity;
 
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import studybackend.refrigeratorcleaner.dto.Role;
+
 
 @Getter
 @NoArgsConstructor
@@ -30,27 +30,21 @@ public class User {
 
     private String socialType; // KAKAO, NAVER, GOOGLE
 
-    @Column(name = "social_id",unique = true)
+    @Column(unique = true)
     private String socialId; // 로그인한 소셜 타입의 식별자 값
-
-    private String refreshToken; // 리프레시 토큰
 
     public void authorizeUser() {
         this.role = Role.USER.getKey();
     }
 
-    public void updateNickname(String updateNickname) {
-        this.nickName = updateNickname;
-    }
+    public void updateNickname(String updateNickname) { this.nickName = updateNickname; }
+    public void updateProfile(String updateProfile) { this.imageUrl = updateProfile; }
 
     public void updatePassword(String updatePassword) {
         this.password = updatePassword;
     }
-    public void updateRefreshToken(String updateRefreshToken) {
-        this.refreshToken = updateRefreshToken;
-    }
-    public void updateRole(String role) {this.role = role;}
 
+    public void updateRole(String role) {this.role = role;}
 
     public void updateAll(String email, String pw, String socialId,String url,String socialType) {
         this.email = email;
@@ -59,4 +53,5 @@ public class User {
         this.imageUrl = url;
         this.socialType = socialType;
     }
+
 }

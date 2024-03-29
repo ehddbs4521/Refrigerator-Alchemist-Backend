@@ -1,9 +1,9 @@
-package studybackend.refrigeratorcleaner.Service;
+package studybackend.refrigeratorcleaner.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import studybackend.refrigeratorcleaner.Repository.DeleteUser;
+import studybackend.refrigeratorcleaner.repository.DeleteUser;
 
 @Service
 @Transactional

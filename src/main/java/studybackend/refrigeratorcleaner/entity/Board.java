@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.Entity;
+package studybackend.refrigeratorcleaner.entity;
 
 
 import jakarta.persistence.*;
@@ -40,12 +40,24 @@ public class Board {
     private List<String> ingredients;
     @Column(name = "image_url")
     private String imageUrl;
+
+    public void updateBoard(String title,String texts ,List<String> ingredients){
+        this.title = title;
+        this.texts = texts;
+        this.ingredients = ingredients;
+    }
+    public  void onLikeCnt (){
+        this.likeCount +=1;
+    }
+    public  void offLikeCnt (){
+        this.likeCount -=1;
+    }
     @Builder
     public Board(String email,String nickName,String title,String texts,int likeCount,String imageUrl,List<String> ingredients){
         this.email = email;
         this.nickName = nickName;
         this.title = title;
-        this.texts = texts;
+        this.texts = texts; //description
         this.likeCount = likeCount;
         this.imageUrl  = imageUrl;
         this.ingredients = ingredients;

@@ -2,7 +2,10 @@ package studybackend.refrigeratorcleaner.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 //@Setter
@@ -12,15 +15,14 @@ import lombok.*;
 public class LikeDto {
 
 
-    private String nickName ;
+    private String email ;
     @NotBlank(message = "제목을 입력해주세요.")
-    private String  title ;
-    private String clickerName;
+    private String  boardId ;
+
 
     @Builder
-    public LikeDto(String nickName,String title,String clickerName){
-        this.nickName = nickName;
-        this.title = title;
-        this.clickerName = clickerName;
+    public LikeDto(String email,String boardId){
+        this.email = email;
+        this.boardId = boardId;
     }
 }
