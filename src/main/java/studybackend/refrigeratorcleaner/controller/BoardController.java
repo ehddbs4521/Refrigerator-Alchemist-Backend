@@ -38,7 +38,7 @@ public class BoardController {
 
     @PostMapping(value = "/content/write")//작성한 게시글을 저장
     public ResponseEntity<String> postWriteContent(@RequestBody BoardDto board) {
-        System.out.println("성공");
+
         bService.saveBoarDto(board);
         try{
             return ResponseEntity.ok("Content update successfully!");
