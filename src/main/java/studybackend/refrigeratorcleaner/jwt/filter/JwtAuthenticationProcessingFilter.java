@@ -49,7 +49,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             AntPathMatcher pathMatcher = new AntPathMatcher();
             String requestURI = request.getRequestURI();
 
-            if (requestURI.equals(LOGIN_CHECK_URL) || pathMatcher.match("/auth/**", requestURI)) {
+            if (requestURI.equals(LOGIN_CHECK_URL) || pathMatcher.match("/auth/**", requestURI) || pathMatcher.match("/recipe/recommend/**", requestURI)) {
                 filterChain.doFilter(request, response);
                 return;
             }

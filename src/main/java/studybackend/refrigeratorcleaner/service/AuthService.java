@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
-import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Cleaner;
+import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Alchemist;
 
 
 @Slf4j
@@ -133,7 +133,7 @@ public class AuthService {
 
         User user = userRepository.findByNickName(userRequest.getNickName()).orElseThrow(()->new CustomException(EXIST_USER_NICKNAME));
 
-        user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Cleaner.getKey());
+        user.updateAll(userRequest.getEmail(), password, socialId,url,Refrigerator_Alchemist.getKey());
         userRepository.saveAndFlush(user);
     }
 
@@ -161,7 +161,7 @@ public class AuthService {
             throw new CustomException(WRONG_PASSWORD);
         }
 
-        if (!resetPasswordRequest.getSocialType().equals(Refrigerator_Cleaner.getKey())) {
+        if (!resetPasswordRequest.getSocialType().equals(Refrigerator_Alchemist.getKey())) {
             throw new CustomException(NOT_REFRIGERATOR_SOCIALTYPE);
         }
 
