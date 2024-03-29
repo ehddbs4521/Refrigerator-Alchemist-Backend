@@ -38,7 +38,7 @@ public class BoardController {
 
     @PostMapping(value = "/content/write")//작성한 게시글을 저장
     public ResponseEntity<String> postWriteContent(@RequestBody BoardDto board) {
-        System.out.println("성공");
+
         bService.saveBoarDto(board);
         try{
             return ResponseEntity.ok("Content update successfully!");
@@ -131,25 +131,6 @@ public class BoardController {
         }
     }
 
-//    @GetMapping (value = "board/likeApi") // 좋아요 누르기
-//    public String clickLike(@RequestBody LikeDto likeDto) {
-//        String nickName = "test";
-//        String boardId = "jxckmnjv";
-//
-//        //좋아요 누르기 전 '좋아요' 중복클릭 했는지 체크
-//        if(lService.verifyDoubleLike(nickName,boardId).size()==0){
-//            //좋아요 클릭할 게시물의 제목으로 검색해 가져옴
-//            List<Board> boards =  bService.searchBoard(title);
-//            //boards.get(0).setLikeCount(boards.get(0).getLikeCount()+1); //좋아요 1증가
-//            boards.get(0).builder().likeCount(boards.get(0).getLikeCount()+1).build();//좋아요 1증가
-//            bService.updateBoard(boards.get(0)); //변경된 좋아요 수를 db에 반영
-//
-//
-//            LikeCheck l = lService.getLikeCheck(likeDto);
-//            //LikeCheck l = new LikeCheck(lDto.getNickName(),lDto.getTitle(),lDto.getClickerName());
-//            lService.logLikeCheck(l);
-//        }
-//        return "home";
-//    }
+
 
 }

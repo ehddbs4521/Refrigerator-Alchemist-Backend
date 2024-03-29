@@ -60,13 +60,10 @@ public class BoardApiController {
         return result;
     }
     @GetMapping(value = "/board/page")
-    //@CrossOrigin(origins =  "board/apiTest") //최신순으로 출력
+
     public  Map<String, Object>
     getContent(@RequestParam(value = "data") String data){
-//        @PostMapping(value = "board/apiTest")
-//        //@CrossOrigin(origins =  "board/apiTest") //최신순으로 출력
-//        public  Map<String, Object>
-//        getContent(@RequestBody String data){
+
         System.out.println("정답: "+ data);
         Map<String, Object> content;
         try {
@@ -180,10 +177,9 @@ public class BoardApiController {
     @GetMapping (value ="board/updateBoard")
     public Map<String, Object> updateBoard(@RequestParam(value = "postId") String data){
         System.out.println("에러확인: "+data);
-//        formData = formData.split(":")[1];
-//        formData= formData.substring(1,formData.length()-2);
+
         Long ID = Long.valueOf(data);
-        //System.out.println("파싱결과: "+formData.get("postId"));
+
         Map<String,Object> content;
         List<BoardDto> boardDtos = boardService.getSpecific(ID);
         System.out.println("업데이트 test");

@@ -42,4 +42,9 @@ public class ModifyController {
         return ResponseEntity.ok(profile);
     }
 
+    @GetMapping("/reset/info")
+    public ResponseEntity<Object> getMyInfo() {
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
