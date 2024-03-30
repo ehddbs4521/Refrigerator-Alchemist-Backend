@@ -12,7 +12,7 @@ import studybackend.refrigeratorcleaner.dto.Role;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name = "USER")
+@Table(name = "user_table")
 @AllArgsConstructor
 public class User {
 
