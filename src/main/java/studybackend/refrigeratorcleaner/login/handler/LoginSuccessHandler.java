@@ -18,6 +18,7 @@ import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Optional;
 
 import static studybackend.refrigeratorcleaner.error.CustomServletException.sendJsonError;
@@ -62,7 +63,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             response.setHeader("Authorization-Access", "Bearer " + accessToken);
             response.setHeader("Authorization-Refresh", "Bearer " + refreshToken);
             response.setHeader("email", email);
-            response.setHeader("nickName", userInfo.getNickName());
+            response.setHeader("nickName", URLEncoder.encode(userInfo.getNickName(), "utf-8"));
             response.setHeader("socialId", socialId);
             response.setStatus(HttpStatus.OK.value());
         } catch (CustomException e) {
