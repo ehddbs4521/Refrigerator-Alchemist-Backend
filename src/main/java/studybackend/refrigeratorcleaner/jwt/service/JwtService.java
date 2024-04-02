@@ -28,7 +28,7 @@ public class JwtService {
     private static final String EMAIL_CLAIM = "email";
     private static final String SOCIAL_TYPE = "socialType";
     private static final String SOCIAL_ID = "socialId";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1;            // 유효기간 2시간
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2;            // 유효기간 2시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 유효기간 14일
 
     private String accessHeader;
@@ -42,7 +42,7 @@ public class JwtService {
                       UserRepository userRepository) {
         this.accessHeader = accessHeader;
         this.refreshHeader = refreshHeader;
-        this.key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS512.key().build().getAlgorithm());
         this.userRepository = userRepository;
     }
     public String generateAccessToken(String socialId) {
@@ -108,6 +108,7 @@ public class JwtService {
 
     public TokenStatus isTokenValid(String token) {
         try {
+            log.info("token:{}", token);
             Jwts.parser()
                     .verifyWith(key)
                     .build()
@@ -116,10 +117,13 @@ public class JwtService {
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             return TokenStatus.WRONG_SIGNATURE;
         } catch (ExpiredJwtException e) {
+            log.info("cacac");
             return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
+            log.info("asfsaf");
             return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
+            log.info("svvsv");
             return TokenStatus.ILLEGAL_TOKEN;
         }
     }
