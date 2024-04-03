@@ -2,6 +2,7 @@ package studybackend.refrigeratorcleaner.jwt.service;
 
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -42,7 +43,7 @@ public class JwtService {
                       UserRepository userRepository) {
         this.accessHeader = accessHeader;
         this.refreshHeader = refreshHeader;
-        this.key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS512.key().build().getAlgorithm());
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.userRepository = userRepository;
     }
     public String generateAccessToken(String socialId) {
@@ -55,7 +56,7 @@ public class JwtService {
                 .setSubject(ACCESS_TOKEN_SUBJECT)
                 .claim(SOCIAL_ID, socialId)
                 .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key)
                 .compact();
     }
 
@@ -108,22 +109,19 @@ public class JwtService {
 
     public TokenStatus isTokenValid(String token) {
         try {
-            log.info("token:{}", token);
             Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
             return TokenStatus.SUCCESS;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("error:{}",e.getMessage());
             return TokenStatus.WRONG_SIGNATURE;
         } catch (ExpiredJwtException e) {
-            log.info("cacac");
             return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
-            log.info("asfsaf");
             return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
-            log.info("svvsv");
             return TokenStatus.ILLEGAL_TOKEN;
         }
     }
