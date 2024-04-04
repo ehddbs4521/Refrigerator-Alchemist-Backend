@@ -2,7 +2,6 @@ package studybackend.refrigeratorcleaner.jwt.service;
 
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -14,9 +13,11 @@ import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 @Getter
@@ -43,11 +44,11 @@ public class JwtService {
                       UserRepository userRepository) {
         this.accessHeader = accessHeader;
         this.refreshHeader = refreshHeader;
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = Base64.getDecoder().decode(secret.getBytes(UTF_8));
+        this.key = new SecretKeySpec(keyBytes, "HmacSHA512");
         this.userRepository = userRepository;
     }
     public String generateAccessToken(String socialId) {
-
         long now = (new Date()).getTime();
 
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
@@ -122,6 +123,7 @@ public class JwtService {
         } catch (UnsupportedJwtException e) {
             return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
+            log.info("error2:{}",e.getMessage());
             return TokenStatus.ILLEGAL_TOKEN;
         }
     }

@@ -36,7 +36,6 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-	implementation 'org.bouncycastle:bcprov-jdk15to18:1.77'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
