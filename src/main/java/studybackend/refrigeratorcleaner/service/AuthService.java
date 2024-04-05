@@ -227,7 +227,9 @@ public class AuthService {
 
 
         TokenStatus tokenValid = jwtService.isTokenValid(accessToken);
-        jwtErrorHandler.tokenError(tokenValid);
+        if (!tokenValid.equals(TokenStatus.SUCCESS)) {
+            jwtErrorHandler.tokenError(tokenValid);
+        }
 
         Optional<String> token = jwtService.extractSocialId(accessToken);
         if (token.isEmpty()) {

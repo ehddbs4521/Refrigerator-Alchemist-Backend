@@ -13,9 +13,11 @@ import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 @Getter
@@ -42,11 +44,11 @@ public class JwtService {
                       UserRepository userRepository) {
         this.accessHeader = accessHeader;
         this.refreshHeader = refreshHeader;
-        this.key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS512.key().build().getAlgorithm());
+        byte[] keyBytes = Base64.getDecoder().decode(secret.getBytes(UTF_8));
+        this.key = new SecretKeySpec(keyBytes, "HmacSHA512");
         this.userRepository = userRepository;
     }
     public String generateAccessToken(String socialId) {
-
         long now = (new Date()).getTime();
 
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
@@ -55,7 +57,7 @@ public class JwtService {
                 .setSubject(ACCESS_TOKEN_SUBJECT)
                 .claim(SOCIAL_ID, socialId)
                 .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key)
                 .compact();
     }
 
@@ -109,22 +111,20 @@ public class JwtService {
     public TokenStatus isTokenValid(String token) {
 
         try {
-            log.info("token:{}", token);
             Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
             return TokenStatus.SUCCESS;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("error:{}",e.getMessage());
             return TokenStatus.WRONG_SIGNATURE;
         } catch (ExpiredJwtException e) {
-            log.info("cacac");
             return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
-            log.info("asfsaf");
             return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
-            log.info("svvsv");
+            log.info("error2:{}",e.getMessage());
             return TokenStatus.ILLEGAL_TOKEN;
         }
     }
