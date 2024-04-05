@@ -84,14 +84,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 throw new CustomException(NOT_VALID_ACCESSTOKEN);
             }
 
-            TokenStatus tokenStatus = jwtService.isTokenValid(accessToken.get());
-
-            if (tokenStatus.equals(TokenStatus.SUCCESS)) {
-                checkAccessTokenAndAuthentication(request, response, filterChain);
-            }
-
-            jwtErrorHandler.tokenError(tokenStatus);
-
             Optional<String> tokenSocialId = jwtService.extractSocialId(accessToken.get());
             if (tokenSocialId.isEmpty()) {
                 throw new CustomException(NOT_EXTRACT_SOCIALID);
