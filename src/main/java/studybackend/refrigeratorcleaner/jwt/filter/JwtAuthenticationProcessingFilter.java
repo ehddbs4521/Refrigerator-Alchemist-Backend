@@ -49,7 +49,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             AntPathMatcher pathMatcher = new AntPathMatcher();
             String requestURI = request.getRequestURI();
 
-            if (requestURI.equals(LOGIN_CHECK_URL) || pathMatcher.match("/auth/**", requestURI)) {
+            if (requestURI.equals(LOGIN_CHECK_URL) ||pathMatcher.match("/auth/**", requestURI) ||pathMatcher.match("/recipe/recommend/**", requestURI) || pathMatcher.match("/board/total/**", requestURI)
+                    ||pathMatcher.match("/board/specific/**", requestURI) ||pathMatcher.match("/ranking/top3/**", requestURI) || pathMatcher.match("/board/page/**", requestURI)) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -83,14 +84,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             if (accessToken.isEmpty()) {
                 throw new CustomException(NOT_VALID_ACCESSTOKEN);
             }
-
-            TokenStatus tokenStatus = jwtService.isTokenValid(accessToken.get());
-
-            if (tokenStatus.equals(TokenStatus.SUCCESS)) {
-                checkAccessTokenAndAuthentication(request, response, filterChain);
-            }
-
-            jwtErrorHandler.tokenError(tokenStatus);
 
             Optional<String> tokenSocialId = jwtService.extractSocialId(accessToken.get());
             if (tokenSocialId.isEmpty()) {
