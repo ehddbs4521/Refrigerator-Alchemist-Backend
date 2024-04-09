@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import studybackend.refrigeratorcleaner.controller.AuthController;
+import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.service.AuthService;
@@ -21,6 +22,8 @@ import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.EXPIRED;
+import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.WRONG_SIGNATURE;
 
 @WebMvcTest
 public class TokenProviderTest {
@@ -98,16 +101,16 @@ public class TokenProviderTest {
     void checkTokenIfExpiredOrNot() {
         String token = generateExpiredAccessToken("1234");
 
-        boolean tokenValid = jwtService.isTokenValid(token);
-                assertThat(tokenValid).isFalse();
+        TokenStatus tokenValid = jwtService.isTokenValid(token);
+        assertThat(tokenValid).isEqualTo(EXPIRED);
     }
 
     @Test
     @DisplayName("유효한 토큰이 아니면 false 반환")
     void checkTokenIfValidSignatureOrNot() {
         String token = "dqdwdwddwd";
-        boolean tokenValid = jwtService.isTokenValid(token);
-        assertThat(tokenValid).isFalse();
+        TokenStatus tokenValid = jwtService.isTokenValid(token);
+        assertThat(tokenValid).isEqualTo(WRONG_SIGNATURE);
     }
 
     @Test
