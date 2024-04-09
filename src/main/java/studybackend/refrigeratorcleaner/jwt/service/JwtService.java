@@ -116,14 +116,12 @@ public class JwtService {
                     .parseSignedClaims(token);
             return TokenStatus.SUCCESS;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("error:{}",e.getMessage());
             return TokenStatus.WRONG_SIGNATURE;
         } catch (ExpiredJwtException e) {
             return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
             return TokenStatus.UNSUPPORTED;
         } catch (IllegalArgumentException e) {
-            log.info("error2:{}",e.getMessage());
             return TokenStatus.ILLEGAL_TOKEN;
         }
     }
