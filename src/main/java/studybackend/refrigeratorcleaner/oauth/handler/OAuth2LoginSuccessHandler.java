@@ -21,6 +21,7 @@ import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -51,7 +52,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
                         .queryParam("email",oAuth2User.getEmail())
                         .queryParam("socialId",oAuth2User.getSocialId())
-                        .queryParam("nickName", user.getNickName())
+                        .queryParam("nickName", URLEncoder.encode(user.getNickName(), "utf-8"))
                         .queryParam("accessToken", accessToken)
                         .queryParam("refreshToken", refreshToken)
                         .build()
@@ -84,7 +85,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
                 .queryParam("email", oAuth2User.getEmail())
                 .queryParam("socialId", oAuth2User.getSocialId())
-                .queryParam("nickName", user.getNickName())
+                .queryParam("nickName", URLEncoder.encode(user.getNickName(), "utf-8"))
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .build()

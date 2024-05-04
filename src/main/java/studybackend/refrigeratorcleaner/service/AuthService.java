@@ -37,6 +37,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static studybackend.refrigeratorcleaner.error.ErrorCode.*;
+import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.EXPIRED;
 import static studybackend.refrigeratorcleaner.oauth.dto.SocialType.Refrigerator_Alchemist;
 
 
@@ -176,7 +177,10 @@ public class AuthService {
     public TokenResponse validateToken(String accessToken, String refreshToken, String accessTokenSocialId) {
 
         TokenStatus tokenValid = jwtService.isTokenValid(refreshToken);
-        jwtErrorHandler.tokenError(tokenValid);
+
+        if (!tokenValid.equals(EXPIRED)) {
+            jwtErrorHandler.tokenError(tokenValid);
+        }
 
         if (blackListRepository.existsByAccessToken(accessToken)) {
             throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);

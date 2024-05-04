@@ -88,6 +88,7 @@ public class BoardApiController {
         }
         return  content;
     }
+
     @GetMapping(value = "/ranking/top3") // 좋아요 순으로 정렬
     public  Map<String, Object> orderLikeCount() {
         Map<String, Object> content;

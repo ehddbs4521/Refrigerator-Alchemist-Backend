@@ -23,6 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.SUCCESS;
 
 @ExtendWith(MockitoExtension.class)
 public class TokenUpdateTest {
@@ -54,7 +55,7 @@ public class TokenUpdateTest {
     @DisplayName("Access토큰이 blacklist에 저장되있으면 로그아웃 못함")
     void canNotLogoutWhenAccessTokenExistsInBlackList() {
         String token = jwtService.generateAccessToken("hello");
-        when(jwtService.isTokenValid(token)).thenReturn(true);
+        when(jwtService.isTokenValid(token)).thenReturn(SUCCESS);
         when(userRepository.existsBySocialId("hello")).thenReturn(true);
         when(blackListRepository.existsByAccessToken(token)).thenReturn(true);
         when(jwtService.extractSocialId(token).get()).thenReturn("hello");
@@ -68,7 +69,7 @@ public class TokenUpdateTest {
     void canNotReIssueTokenWhenAccessTokenExistsInBlackList() {
         String accessToken = jwtService.generateAccessToken(Mockito.anyString());
         String refreshToken = jwtService.generateRefreshToken(Mockito.anyString());
-        when(jwtService.isTokenValid(accessToken)).thenReturn(true);
+        when(jwtService.isTokenValid(accessToken)).thenReturn(SUCCESS);
         when(blackListRepository.existsByAccessToken(accessToken)).thenReturn(true);
         assertThatCode(() -> authService.validateToken(accessToken,refreshToken, Mockito.anyString()))
                 .isInstanceOf(CustomException.class)
