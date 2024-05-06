@@ -55,7 +55,7 @@ public enum ErrorCode {
     FAILED_TO_LOAD_MYPOSTS(HttpStatus.NOT_FOUND,"RAR20","내가 작성한 게시물들을 불러올 수 없습니다."),
     FAILED_TO_LOAD_MYIMG(HttpStatus.NOT_FOUND,"RAR21","내 프로필 이미지를 불러올 수 없습니다."),
     FAILED_TO_LOAD_DELETE_POST(HttpStatus.INTERNAL_SERVER_ERROR,"RAR22","게시글을 삭제하던 중 에러가 발생했습니다."),
-    FAILED_TO_LOAD_LIKEDPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR23","내가 좋아요 누른 게시글의 수를 조회하는 중 에러가 발생했습니다."),
+    FAILED_TO_LOAD_LIKEDPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR23","내가 좋아요 누른 게시글의 수를 조회하는 중 에러가 발생했습니다."),//
     FAILED_TO_LOAD_ALLPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR24","전체 게시글을 불러오는 중 문제가 발생했습니다.");
 
 
