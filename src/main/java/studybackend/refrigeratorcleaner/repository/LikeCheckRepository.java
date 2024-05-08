@@ -28,9 +28,5 @@ public class LikeCheckRepository {
                         "m.email =: email", LikeCheck.class)
                 .setParameter("email",email).getResultList();
     }
-//    public List<Board> getMyLikeList(String nickName,String title) {
-//        return em.createQuery("select m from Board m where m.title =: title and m.nickName =: nickName", Board.class)
-//                .setParameter("nickName",nickName)
-//                .setParameter("title",title).getResultList();
-//    }
+
 }

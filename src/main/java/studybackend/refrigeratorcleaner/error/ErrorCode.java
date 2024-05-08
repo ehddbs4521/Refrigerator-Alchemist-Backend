@@ -38,7 +38,29 @@ public enum ErrorCode {
     FAILED_TO_GET_DETAIL_RECIPE(HttpStatus.INTERNAL_SERVER_ERROR, "RAR5","상세 레시피 조회에 실패했습니다."),//500(/recipe/myRecipe/{recipeId})
     FAILED_TO_MAKE_RECIPE(HttpStatus.INTERNAL_SERVER_ERROR, "RAR6","추천 레시피 생성에 실패했습니다."),//500(/recipe/recommend)
     NO_EXIST_RECIPEID(HttpStatus.NOT_FOUND, "RAR7","해당 recipeId가 존재하지 않습니다."),//404(/recipe/myRecipe/{recipeId})
-    NO_EXIST_RECOMMENDID(HttpStatus.NOT_FOUND, "RAR8","해당 recommendId가 존재하지 않습니다.");//404(/recipe/recommend/{recommendId})
+    NO_EXIST_RECOMMENDID(HttpStatus.NOT_FOUND, "RAR8","해당 recommendId가 존재하지 않습니다."),//404(/recipe/recommend/{recommendId})
+
+    FAILED_TO_SAVE_POST(HttpStatus.INTERNAL_SERVER_ERROR,"RAR9","게시글을 저장하는 중 에러가 발생했습니다."), //500
+    FAILED_TO_MODIFY_POSTS(HttpStatus.INTERNAL_SERVER_ERROR,"RAR10","게시글을 수정하는 중 에러가 발생했습니다."),//500
+    FAILED_TO_UPLOAD_POSTS(HttpStatus.INTERNAL_SERVER_ERROR,"RAR11","레시피를 업로드하는 중 에러가 발생했습니다."),//500
+    FAILED_TO_SEND_LIKE(HttpStatus.INTERNAL_SERVER_ERROR,"RAR12","좋아요 누를 때 에러가 발생했습니다."),//500
+    FAILED_TO_SEND_DISLIKE(HttpStatus.INTERNAL_SERVER_ERROR,"RAR25", "좋아요를 취소 할 때 에러가 발생했습니다."), //500
+    FAILED_TO_CHECK_LIKE(HttpStatus.NOT_FOUND,"RAR13","해당 id가 좋아요를 눌렀는지 확인하는 중 에러가 발생했습니."),//404
+    FAIELD_TO_LOAD_POST(HttpStatus.NOT_FOUND,"RAR14","게시판 페이지를 불러올 수 없습니다."),
+    FAILED_TO_LOAD_DETAIL(HttpStatus.NOT_FOUND,"RAR15","상세 페이지를 불러올 수 없습니다."),
+    FAILED_TO_LOAD_TOP(HttpStatus.NOT_FOUND,"RAR16","인기 게시물을 불러올 수 없습니다."),
+    FAILED_TO_LOAD_MYPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR17","내가 작성한 게시물의 수를 불러올 수 없습니다."),
+    NO_SEARCH_RESULTS(HttpStatus.NOT_FOUND,"RAR18","검색 결과를 찾을 수 없습니다."),
+    FAILED_TO_LOAD_LIKEDPOSTS(HttpStatus.NOT_FOUND,"RAR19","내가 좋아요를 누른 게시물들을 불러올 수 없습니다."),
+    FAILED_TO_LOAD_MYPOSTS(HttpStatus.NOT_FOUND,"RAR20","내가 작성한 게시물들을 불러올 수 없습니다."),
+    FAILED_TO_LOAD_MYIMG(HttpStatus.NOT_FOUND,"RAR21","내 프로필 이미지를 불러올 수 없습니다."),
+    FAILED_TO_LOAD_DELETE_POST(HttpStatus.INTERNAL_SERVER_ERROR,"RAR22","게시글을 삭제하던 중 에러가 발생했습니다."),
+    FAILED_TO_LOAD_LIKEDPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR23","내가 좋아요 누른 게시글의 수를 조회하는 중 에러가 발생했습니다."),//404
+    FAILED_TO_LOAD_ALLPOSTS_COUNT(HttpStatus.NOT_FOUND,"RAR24","전체 게시글을 불러오는 중 문제가 발생했습니다.");
+
+
+
+
 
     private final HttpStatus status;
     private final String code;
