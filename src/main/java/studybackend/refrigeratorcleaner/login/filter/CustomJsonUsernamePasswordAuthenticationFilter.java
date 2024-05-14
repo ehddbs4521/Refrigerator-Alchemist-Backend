@@ -57,9 +57,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
             String email = usernamePasswordMap.get(USERNAME_KEY);
             String password = usernamePasswordMap.get(PASSWORD_KEY);
             String socialType = usernamePasswordMap.get(SOCIAL_KEY);
-
             User user = userRepository.findBySocialTypeAndEmail(socialType, email).get();
-
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user.getSocialId(), password);
 
             return this.getAuthenticationManager().authenticate(authRequest);

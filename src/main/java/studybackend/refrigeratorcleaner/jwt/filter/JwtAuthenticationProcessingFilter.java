@@ -16,12 +16,14 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.error.JwtErrorHandler;
 import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
 import studybackend.refrigeratorcleaner.redis.entity.BlackList;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -37,6 +39,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private static final String LOGIN_CHECK_URL = "/login";
 
     private final JwtService jwtService;
+    private final AuthService authService;
     private final UserRepository userRepository;
     private final BlackListRepository blackListRepository;
     private final JwtErrorHandler jwtErrorHandler;
@@ -56,20 +59,26 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             }
 
             Optional<String> accessToken = jwtService.extractAccessToken(request);
+            Optional<String> refreshToken = jwtService.extractRefreshToken(request);
 
             if (accessToken.isEmpty()) {
                 throw new CustomException(NOT_VALID_ACCESSTOKEN);
             }
 
             TokenStatus tokenStatus = jwtService.isTokenValid(accessToken.get());
-
             if (tokenStatus.equals(TokenStatus.SUCCESS)) {
                 checkAccessTokenAndAuthentication(request, response, filterChain);
                 return;
             }
 
-            jwtErrorHandler.tokenError(tokenStatus);
+            if (tokenStatus.equals(TokenStatus.EXPIRED) && pathMatcher.match("/token/reissue", requestURI)) {
 
+                String socialId = request.getHeader("socialId");
+                TokenResponse tokenResponse = authService.validateToken(accessToken.get(), refreshToken.get(), socialId);
+                jwtService.setTokens(response, tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+            } else {
+                jwtErrorHandler.tokenError(tokenStatus);
+            }
         } catch (CustomException e) {
             sendJsonError(response, e.getErrorCode().getStatus().value(), e.getErrorCode().getCode());
         }

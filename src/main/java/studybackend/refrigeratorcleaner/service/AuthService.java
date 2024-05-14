@@ -178,10 +178,9 @@ public class AuthService {
 
         TokenStatus tokenValid = jwtService.isTokenValid(refreshToken);
 
-        if (!tokenValid.equals(EXPIRED)) {
+        if (tokenValid.equals(EXPIRED)) {
             jwtErrorHandler.tokenError(tokenValid);
         }
-
         if (blackListRepository.existsByAccessToken(accessToken)) {
             throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);
         }
@@ -204,6 +203,7 @@ public class AuthService {
 
     @Transactional
     public void changeNickName(ValidateNickNameRequest validateNickNameRequest) {
+
         Optional<User> existNickName = userRepository.findByNickName(validateNickNameRequest.getPresentNickName());
         Optional<User> changeNickName = userRepository.findByNickName(validateNickNameRequest.getChangeNickName());
 

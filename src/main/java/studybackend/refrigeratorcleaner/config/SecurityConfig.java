@@ -30,6 +30,7 @@ import studybackend.refrigeratorcleaner.oauth.service.CustomOAuth2UserService;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
+import studybackend.refrigeratorcleaner.service.AuthService;
 
 @Slf4j
 @Configuration
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
     private final LoginService loginService;
     private final JwtService jwtService;
+    private final AuthService authService;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final BlackListRepository blackListRepository;
@@ -110,7 +112,7 @@ public class SecurityConfig {
 
     @Bean
     public Filter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository, blackListRepository, jwtErrorHandler);
+        JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService, authService,userRepository, blackListRepository, jwtErrorHandler);
         return jwtAuthenticationFilter;
     }
 
