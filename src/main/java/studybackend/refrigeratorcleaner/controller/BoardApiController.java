@@ -77,7 +77,6 @@ public class BoardApiController {
     //상세페이지
     @GetMapping(value  = "board/specific")
     public  Map<String, Object> getSpecific(@RequestParam(value = "postId") String postId){
-        log.info("postId:{}", postId);
         Long id = Long.valueOf(postId);
         Map<String, Object> content;
         try {
@@ -123,7 +122,6 @@ public class BoardApiController {
 
         Map<String,Object> content;
         List<LikeCheck> LikeChecks = likeCheckService.getMyLikeTitle(email);
-        log.info("nickName:{}", email);
         List<BoardDto> boardDtos = new ArrayList<>();
         for(LikeCheck likeCheck:LikeChecks){
             Long boardId =Long.valueOf(likeCheck.getBoardId());
@@ -158,7 +156,6 @@ public class BoardApiController {
     }
     @GetMapping(value = "/userinfo")
     public  Map<String,Object>getUserImage(@RequestHeader(value = "email") String email){
-        log.info("fqfqffwf");
         System.out.println("프로필 이미지 "+ email);
         Map<String, Object> content = new HashMap<>();
         List<User> user =  myPageService.getUser(email);

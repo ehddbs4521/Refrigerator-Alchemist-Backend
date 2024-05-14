@@ -129,7 +129,6 @@ public class JwtService {
     }
 
     public void setTokens(HttpServletResponse response, String accessToken, String refreshToken) {
-        log.info("Fafaf");
         response.setHeader(accessHeader, BEARER + accessToken);
         response.setHeader(refreshHeader, BEARER + refreshToken);
         response.setStatus(HttpStatus.OK.value());
