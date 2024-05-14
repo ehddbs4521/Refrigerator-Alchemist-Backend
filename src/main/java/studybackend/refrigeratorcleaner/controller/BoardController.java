@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
 import studybackend.refrigeratorcleaner.entity.Board;
+import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.service.BoardService;
 import studybackend.refrigeratorcleaner.service.ImageService;
 import studybackend.refrigeratorcleaner.service.LikeCheckService;
@@ -69,8 +71,8 @@ public class BoardController {
             bService.updateBoard(b);
             return ResponseEntity.ok("Content update successfully!");
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading content");
+            throw new CustomException(ErrorCode.FAILED_TO_MODIFY_POSTS);
+
         }
     }
     @PostMapping("/board/upload/post") //레시피를 업로드 하는 주소
@@ -86,9 +88,7 @@ public class BoardController {
 
                 imageUrl= iService.uploadImage(imageInputStream,"test");
             } catch (IOException e) {
-                e.printStackTrace();
-                // 이미지 파일을 InputStream으로 변환하는 중에 예외 발생 시 예외 처리
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error converting image to InputStream");
+                throw new CustomException(ErrorCode.FAILED_TO_UPLOAD_POSTS);
             }
         }
 
@@ -126,8 +126,7 @@ public class BoardController {
             //contentService.saveContent(image, foodName, description, ingredients);
             return ResponseEntity.ok(bService.recentBoard().getId().toString());
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading content");
+            throw new CustomException(ErrorCode.FAILED_TO_UPLOAD_POSTS);
         }
     }
 
