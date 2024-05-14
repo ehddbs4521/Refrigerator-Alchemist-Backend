@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import studybackend.refrigeratorcleaner.jwt.error.TokenStatus;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
@@ -30,7 +31,7 @@ public class JwtService {
     private static final String EMAIL_CLAIM = "email";
     private static final String SOCIAL_TYPE = "socialType";
     private static final String SOCIAL_ID = "socialId";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2;            // 유효기간 2시간
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 10;            // 유효기간 2시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 유효기간 14일
 
     private String accessHeader;
@@ -65,7 +66,7 @@ public class JwtService {
 
         long now = (new Date()).getTime();
 
-        Date refreshTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+        Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
 
         return  Jwts.builder()
                 .setSubject(REFRESH_TOKEN_SUBJECT)
@@ -128,9 +129,9 @@ public class JwtService {
     }
 
     public void setTokens(HttpServletResponse response, String accessToken, String refreshToken) {
-
-        response.setHeader(accessHeader, accessToken);
-        response.setHeader(refreshHeader, refreshToken);
-
+        log.info("Fafaf");
+        response.setHeader(accessHeader, BEARER + accessToken);
+        response.setHeader(refreshHeader, BEARER + refreshToken);
+        response.setStatus(HttpStatus.OK.value());
     }
 }
