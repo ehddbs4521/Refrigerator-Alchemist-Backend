@@ -33,7 +33,7 @@ public class NickNameTest {
 
         assertThatCode(() -> authService.verifyNickName(nickNameRequest.getNickName()))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXIST_USER_NICKNAME.getMessage());
+                .hasMessageContaining(ErrorCode.EXIST_USER_NICKNAME.getCode());
     }
 
 }
