@@ -46,7 +46,7 @@ public class EmailTest {
 
         assertThat(throwable)
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXIST_USER_EMAIL_SOCIALTYPE.getMessage());
+                .hasMessageContaining(ErrorCode.EXIST_USER_EMAIL_SOCIALTYPE.getCode());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class EmailTest {
 
         assertThat(throwable)
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_EMAIL_SOCIALTYPE.getMessage());
+                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_EMAIL_SOCIALTYPE.getCode());
     }
 
 
@@ -78,7 +78,7 @@ public class EmailTest {
 
         assertThat(throwable)
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.WRONG_CERTIFICATION_NUMBER.getMessage());
+                .hasMessageContaining(ErrorCode.WRONG_CERTIFICATION_NUMBER.getCode());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class EmailTest {
 
         assertThat(throwable)
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXPIRE_CERTIFICATION_NUMBER.getMessage());
+                .hasMessageContaining(ErrorCode.EXPIRE_CERTIFICATION_NUMBER.getCode());
     }
 
 

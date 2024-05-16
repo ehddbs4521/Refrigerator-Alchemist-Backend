@@ -2,6 +2,7 @@ package studybackend.refrigeratorcleaner.service.auth.token;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,20 +19,20 @@ import studybackend.refrigeratorcleaner.service.AuthService;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.EXPIRED;
 import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.WRONG_SIGNATURE;
 
-@WebMvcTest
+@WebMvcTest(AuthController.class)
 public class TokenProviderTest {
 
-    private JwtService jwtService;
-
     @MockBean
-    private AuthController authController;
+    private JwtService jwtService;
 
     @MockBean
     private AuthService authService;
@@ -39,43 +40,42 @@ public class TokenProviderTest {
     @MockBean
     private UserRepository userRepository;
 
-    @Value("${jwt.secret-key}")
-    String secret;
+    private String secret="Zm9vYmFyYmF6cXV4eXo=";
 
     @Value("${jwt.access-header}")
-    String accessHeader;
+    private String accessHeader;
 
     @Value("${jwt.refresh-header}")
-    String refreshHeader;
-    @MockBean
+    private String refreshHeader;
+
     private SecretKey key;
+
     @BeforeEach
     void init() {
+        key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        byte[] keyBytes = key.getEncoded();
+        String base64Key = Base64.getEncoder().encodeToString(keyBytes);
+        jwtService = new JwtService(base64Key, accessHeader, refreshHeader, userRepository);
 
-        jwtService = new JwtService(secret, accessHeader, refreshHeader, userRepository);
-        key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
     @Test
-    @DisplayName("Access토큰을 Bearer로 추출")
+    @DisplayName("Access 토큰을 Bearer로 추출")
     void extractAccessToken() {
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(accessHeader, "Bearer access");
         Optional<String> token = jwtService.extractAccessToken(request);
         assertThat(token.isPresent()).isTrue();
         assertThat(token.get()).isEqualTo("access");
     }
-
     @Test
-    @DisplayName("Refresh토큰을 Bearer로 추출")
+    @DisplayName("Refresh 토큰을 Bearer로 추출")
     void extractRefreshToken() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(refreshHeader, "Bearer refresh");
         Optional<String> token = jwtService.extractRefreshToken(request);
         assertThat(token.isPresent()).isTrue();
         assertThat(token.get()).isEqualTo("refresh");
-
     }
 
     @Test
@@ -89,7 +89,7 @@ public class TokenProviderTest {
 
     @Test
     @DisplayName("토큰이 Bearer로 시작하지 않으면 empty이다.")
-    void extractTokenWhenDoesNoTStartWithBearer() {
+    void extractTokenWhenDoesNotStartWithBearer() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(accessHeader, "Bear Access");
         Optional<String> token = jwtService.extractAccessToken(request);
@@ -122,7 +122,6 @@ public class TokenProviderTest {
     }
 
     public String generateExpiredAccessToken(String socialId) {
-
         long now = new Date().getTime();
         Date date = new Date(now - 2);
 
@@ -133,6 +132,5 @@ public class TokenProviderTest {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
-
 
 }

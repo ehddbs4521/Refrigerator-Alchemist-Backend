@@ -37,7 +37,7 @@ public class ModifyInfoTest {
         when(userRepository.findByNickName("bye123")).thenReturn(Optional.of(new User()));
         assertThatCode(() -> authService.changeNickName(validateNickNameRequest))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_NICKNAME.getMessage());
+                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_NICKNAME.getCode());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ModifyInfoTest {
         when(userRepository.findByNickName("bye123")).thenReturn(Optional.of(new User()));
         assertThatCode(() -> authService.changeNickName(validateNickNameRequest))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXIST_USER_NICKNAME.getMessage());
+                .hasMessageContaining(ErrorCode.EXIST_USER_NICKNAME.getCode());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ModifyInfoTest {
         when(userRepository.findByNickName("hello123")).thenReturn(Optional.empty());
         assertThatCode(() -> authService.updateProfileUrl(mockMultipartFile,"hello123"))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_NICKNAME.getMessage());
+                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_NICKNAME.getCode());
     }
 
 
