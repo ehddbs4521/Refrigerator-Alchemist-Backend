@@ -48,7 +48,7 @@ public class TokenUpdateTest {
         String token = jwtService.generateAccessToken("hello");
         assertThatCode(() -> authService.logout(token, "hello"))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_SOCIALID.getMessage());
+                .hasMessageContaining(ErrorCode.NOT_EXIST_USER_SOCIALID.getCode());
     }
 
     @Test
@@ -58,10 +58,11 @@ public class TokenUpdateTest {
         when(jwtService.isTokenValid(token)).thenReturn(SUCCESS);
         when(userRepository.existsBySocialId("hello")).thenReturn(true);
         when(blackListRepository.existsByAccessToken(token)).thenReturn(true);
-        when(jwtService.extractSocialId(token).get()).thenReturn("hello");
+        when(jwtService.extractSocialId(token)).thenReturn(Optional.of("hello"));
+
         assertThatCode(() -> authService.logout(token, "hello"))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXIST_ACCESSTOKEN_BLACKLIST.getMessage());
+                .hasMessageContaining(ErrorCode.EXIST_ACCESSTOKEN_BLACKLIST.getCode());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class TokenUpdateTest {
         when(blackListRepository.existsByAccessToken(accessToken)).thenReturn(true);
         assertThatCode(() -> authService.validateToken(accessToken,refreshToken, Mockito.anyString()))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.EXIST_ACCESSTOKEN_BLACKLIST.getMessage());
+                .hasMessageContaining(ErrorCode.EXIST_ACCESSTOKEN_BLACKLIST.getCode());
 
     }
 
