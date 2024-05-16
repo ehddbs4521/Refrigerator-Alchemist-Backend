@@ -51,7 +51,7 @@ tasks.named('test') {
 allprojects {
 	gradle.projectsEvaluated {
 		tasks.withType(JavaCompile) {
-			options.compilerArgs << '-parameters' // 이 줄 추가
+			options.compilerArgs << '-parameters'
 		}
 	}
 }

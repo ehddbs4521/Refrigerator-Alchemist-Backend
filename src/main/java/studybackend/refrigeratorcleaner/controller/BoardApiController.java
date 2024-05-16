@@ -70,21 +70,20 @@ public class BoardApiController {
             List<BoardDto> boardDtos = boardService.getBoard((Integer.valueOf(data)-1)*6);
             content = makeApi(boardDtos);
         }catch(Exception e) {
-            throw new CustomException(ErrorCode.FAIELD_TO_LOAD_POST);
+            throw new CustomException(FAILED_TO_GET_RECIPE_LIST);
         }
         return  content;
     }
     //상세페이지
     @GetMapping(value  = "board/specific")
     public  Map<String, Object> getSpecific(@RequestParam(value = "postId") String postId){
-        log.info("postId:{}", postId);
         Long id = Long.valueOf(postId);
         Map<String, Object> content;
         try {
             List<BoardDto> boardDtos = boardService.getSpecific(id);
             content = makeApi(boardDtos);
         }catch(Exception e) {
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_DETAIL);
+            throw new CustomException(ErrorCode. FAILED_TO_GET_DETAIL_RECIPE);
         }
         return  content;
     }
@@ -96,7 +95,7 @@ public class BoardApiController {
             List<BoardDto> boardDtos = boardService.orderLikeCount();
             content = makeApi(boardDtos);
         }catch(Exception e) {
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_TOP);
+            throw new CustomException(FAILED_TO_GET_RECIPE_LIST);
         }
         return  content;
     }
@@ -113,27 +112,29 @@ public class BoardApiController {
             }
             content =  makeApi(boardDtos);
         }catch(Exception e) {
-            throw new CustomException(ErrorCode.NO_SEARCH_RESULTS);
+            throw new CustomException(FAILED_TO_GET_RECIPE_LIST);
         }
         return content;
     }
 
     @GetMapping (value = "/likedpost")
     public Map<String,Object> myPageLike (@RequestHeader(value = "email") String email){
-        try {
-            Map<String, Object> content;
-            List<LikeCheck> LikeChecks = likeCheckService.getMyLikeTitle(email);
-            log.info("nickName:{}", email);
-            List<BoardDto> boardDtos = new ArrayList<>();
-            for (LikeCheck likeCheck : LikeChecks) {
-                Long boardId = Long.valueOf(likeCheck.getBoardId());
+
+        Map<String,Object> content;
+        List<LikeCheck> LikeChecks = likeCheckService.getMyLikeTitle(email);
+        List<BoardDto> boardDtos = new ArrayList<>();
+        for(LikeCheck likeCheck:LikeChecks){
+            Long boardId =Long.valueOf(likeCheck.getBoardId());
+            System.out.println("내가 누른 좋아요: "+ boardId);
+            try{
                 boardDtos.add(boardService.getSpecific(boardId).get(0));
+            }catch (Exception e) {
+                System.out.println("내가 누른 좋아요 에러 "+boardId);
             }
-            content = makeApi(boardDtos);
-            return content;
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_LIKEDPOSTS);
+
         }
+        content = makeApi(boardDtos);
+        return content;
     }
 
     //email(고유값)으로 내간 쓴 게시물 목록 조회(마이페이지)
@@ -146,36 +147,27 @@ public class BoardApiController {
             List<BoardDto> boardDtos = boardService.myList(email);
             System.out.println("내가 작성한 게시물: "+email +"ㅅㅏㅇㅣㅈㅈㅡ: "+ boardDtos.size());
             content = makeApi(boardDtos);
-            //HttpStatus.OK
-            return  content;
-        }catch(Exception e) {
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_MYPOSTS);
-        }
 
+        }catch(Exception e) {
+            throw new CustomException(FAILED_TO_GET_RECIPE_LIST);
+        }
+        //HttpStatus.OK
+        return  content;
     }
     @GetMapping(value = "/userinfo")
     public  Map<String,Object>getUserImage(@RequestHeader(value = "email") String email){
-        try {
-            log.info("fqfqffwf");
-            System.out.println("프로필 이미지 " + email);
-            Map<String, Object> content = new HashMap<>();
-            List<User> user = myPageService.getUser(email);
-            String image = user.get(0).getImageUrl();
-            content.put("imageUrl", image);
-            return content;
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_MYIMG);
-        }
+        System.out.println("프로필 이미지 "+ email);
+        Map<String, Object> content = new HashMap<>();
+        List<User> user =  myPageService.getUser(email);
+        String image = user.get(0).getImageUrl();
+        content.put("imageUrl",image);
+        return  content;
     }
     //게시물 삭제 로직
     @PostMapping (value ="mypost/delete")
     public void deleteBoard(@RequestBody String id){
-        try {
-            Long ID = Long.valueOf(id);
-            boardService.deleteBoard(ID);
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_DELETE_POST);
-        }
+        Long ID = Long.valueOf(id);
+        boardService.deleteBoard(ID);
     }
 
 
@@ -206,28 +198,16 @@ public class BoardApiController {
     @GetMapping (value = "/mypost/size")
     public String mypostSize(@RequestHeader(value = "email") String email){
         System.out.println("mypost사이즈 "+ email);
-        try {
-            return String.valueOf(boardService.myList(email).size());
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_MYPOSTS_COUNT);
-        }
+        return String.valueOf(boardService.myList(email).size());
     }
     @GetMapping (value = "/likedpost/size")
     public  String likepostSize(@RequestHeader(value = "email") String email){
-        try {
-            return String.valueOf(likeCheckService.getMyLikeTitle(email));
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_LIKEDPOSTS_COUNT);
-        }
+        return String.valueOf(likeCheckService.getMyLikeTitle(email));
     }
     //게시판 목록 전체 개수
     @GetMapping (value = "/board/total")
     public String boardSize(){
-        try {
-            return boardService.boardSize();
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.FAILED_TO_LOAD_ALLPOSTS_COUNT);
-        }
+        return boardService.boardSize();
     }
 
     @GetMapping (value = "/apiDrill")
