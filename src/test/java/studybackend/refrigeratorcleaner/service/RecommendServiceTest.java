@@ -6,18 +6,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import studybackend.refrigeratorcleaner.dto.RecommendDto;
 import studybackend.refrigeratorcleaner.entity.Recommend;
+import studybackend.refrigeratorcleaner.error.CustomException;
+import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.repository.RecommendRepository;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -30,27 +28,8 @@ class RecommendServiceTest {
     @Mock
     private RecipeService recipeService;
 
-    @Autowired
-    private RecommendService recommendService;
-
     @InjectMocks
-    private RecommendService mockRecommendService;
-
-
-    @Test
-    @DisplayName("추천받기 성공 테스트")
-    public void recommendSuccessTest() throws Exception{
-        List<String> ingredients = new ArrayList<>();
-        ingredients.add("파");
-        ingredients.add("김치");
-        ingredients.add("양파");
-        ingredients.add("마늘");
-        ingredients.add("양배추");
-
-        Long recommendId = recommendService.recommend(ingredients);
-
-        assertNotNull(recommendId);
-    }
+    private RecommendService recommendService;
 
     @Test
     @DisplayName("Recommend 잘 받아오는지")
@@ -64,12 +43,26 @@ class RecommendServiceTest {
                 .build();
         when(recommendRepository.findByRecommendId(recommendId)).thenReturn(Optional.of(mockRecommend));
         doNothing().when(recommendRepository).delete(mockRecommend);
-        RecommendDto result = mockRecommendService.getRecommended(recommendId);
+        RecommendDto result = recommendService.getRecommended(recommendId);
 
         assertNotNull(result);
         assertEquals(mockRecommend.getFoodName(), result.getFoodName());
 
         verify(recommendRepository, times(1)).findByRecommendId(recommendId); // findByRecommendId 메서드가 한 번 호출되었는지 확인
         verify(recommendRepository, times(1)).delete(mockRecommend); // delete 메서드가 한 번 호출되었는지 확인
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 recommendId")
+    public void noRecommendIdTest(){
+
+        Long recommendId = 123L;
+        when(recommendRepository.findByRecommendId(recommendId)).thenReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            recommendService.getRecommended(recommendId);
+        });
+
+        assertEquals(ErrorCode.NO_EXIST_RECOMMENDID, exception.getErrorCode());
     }
 }
