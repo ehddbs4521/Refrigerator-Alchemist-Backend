@@ -31,7 +31,7 @@ public class Recipe {
     private String recipeStr;
 
     @Builder
-    public Recipe(User user, String foodName, String ingredientStr, String recipeStr) {
+    public Recipe(Long recipeId, User user, String foodName, String ingredientStr, String recipeStr) {
         this.user = user;
         this.foodName = foodName;
         this.ingredientStr = ingredientStr;
