@@ -1,13 +1,11 @@
-package studybackend.refrigeratorcleaner.service;
+package studybackend.refrigeratorcleaner.recipe.service;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.any;
-import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.dto.DetailRecipeDto;
 import studybackend.refrigeratorcleaner.dto.MyRecipeDto;
@@ -16,16 +14,15 @@ import studybackend.refrigeratorcleaner.entity.Recipe;
 import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.repository.RecipeRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import studybackend.refrigeratorcleaner.service.RecipeService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
@@ -50,7 +47,7 @@ class RecipeServiceTest {
 
         User mockUser = User.builder().socialId("testSocialId").build();
 
-        when(userRepository.findBySocialId("testSocialId")).thenReturn(java.util.Optional.of(mockUser));
+        when(userRepository.findBySocialId("testSocialId")).thenReturn(Optional.of(mockUser));
 
         Long recipeId = recipeService.saveRecipe(saveRequestDto, "testSocialId");
 

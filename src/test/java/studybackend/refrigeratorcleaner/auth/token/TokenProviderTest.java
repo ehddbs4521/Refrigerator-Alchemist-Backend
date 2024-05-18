@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth.token;
+package studybackend.refrigeratorcleaner.auth.token;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,13 +17,10 @@ import studybackend.refrigeratorcleaner.repository.UserRepository;
 import studybackend.refrigeratorcleaner.service.AuthService;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.EXPIRED;
 import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.WRONG_SIGNATURE;

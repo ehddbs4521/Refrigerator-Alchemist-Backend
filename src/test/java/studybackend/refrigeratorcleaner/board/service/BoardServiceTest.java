@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service;
+package studybackend.refrigeratorcleaner.board.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,14 +12,13 @@ import studybackend.refrigeratorcleaner.entity.BoardContent;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.repository.BoardRepository;
+import studybackend.refrigeratorcleaner.service.BoardService;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class BoardServiceTest {

@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.mypage.service;
+package studybackend.refrigeratorcleaner.mypage.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.Mockito.when;
 

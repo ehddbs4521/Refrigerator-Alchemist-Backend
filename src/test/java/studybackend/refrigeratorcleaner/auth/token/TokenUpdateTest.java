@@ -1,4 +1,4 @@
-package studybackend.refrigeratorcleaner.service.auth.token;
+package studybackend.refrigeratorcleaner.auth.token;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,9 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
-import studybackend.refrigeratorcleaner.jwt.dto.response.TokenResponse;
 import studybackend.refrigeratorcleaner.jwt.service.JwtService;
-import studybackend.refrigeratorcleaner.redis.entity.RefreshToken;
 import studybackend.refrigeratorcleaner.redis.repository.BlackListRepository;
 import studybackend.refrigeratorcleaner.redis.repository.RefreshTokenRepository;
 import studybackend.refrigeratorcleaner.repository.UserRepository;
@@ -19,9 +17,7 @@ import studybackend.refrigeratorcleaner.service.AuthService;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static studybackend.refrigeratorcleaner.jwt.error.TokenStatus.SUCCESS;
 
