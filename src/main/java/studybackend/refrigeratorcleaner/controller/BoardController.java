@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
 import studybackend.refrigeratorcleaner.entity.Board;
+import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.error.CustomException;
 import studybackend.refrigeratorcleaner.error.ErrorCode;
 import studybackend.refrigeratorcleaner.service.BoardService;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @Slf4j
@@ -85,7 +87,7 @@ public class BoardController {
         if (image != null) {
             try { //InputStream으로 변환해주는 코드
                 imageInputStream = image.getInputStream();
-
+                //imageUrl= iService.saveImage(imageInputStream,"test",image);
                 imageUrl= iService.uploadImage(imageInputStream,"test");
             } catch (IOException e) {
                 throw new CustomException(ErrorCode.FAILED_TO_UPLOAD_POSTS);
@@ -107,13 +109,13 @@ public class BoardController {
         // 파일 및 데이터 처리 로직을 수행합니다.
         // 예를 들어, 해당 데이터를 데이터베이스에 저장하거나 다른 처리를 수행할 수 있습니다.
         try {
-            System.out.println("성공");
+            System.out.println("닉네임"+ nickName);
 
             System.out.println(description);
             for(String ing :ingredients ){
                 System.out.println(ing);
             }
-
+            User user = bService.getUser(nickName);
             Board b = Board.builder().
                     email(email).
                     nickName(nickName).
@@ -121,11 +123,13 @@ public class BoardController {
                     texts(description).
                     imageUrl(imageUrl).
                     ingredients(ingredients).
+                    user(user).
                     build();
             bService.saveBoard(b);
             //contentService.saveContent(image, foodName, description, ingredients);
             return ResponseEntity.ok(bService.recentBoard().getId().toString());
         } catch (Exception e) {
+            System.out.println("업로드 에러"+e);
             throw new CustomException(ErrorCode.FAILED_TO_UPLOAD_POSTS);
         }
     }
