@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.entity.Board;
 import studybackend.refrigeratorcleaner.entity.BoardContent;
+import studybackend.refrigeratorcleaner.entity.User;
 
 import java.util.List;
 
@@ -30,6 +31,10 @@ public class BoardRepository {
         tx.commit();
         e.close();
 
+    }
+    public User getUserByNickName(String nickName) {
+        return em.createQuery("select m from User m where m.nickName =: nickName", User.class)
+                .setParameter("nickName",nickName).getResultList().get(0);
     }
     public void deleteBoard(Long id) { //좋아요 누른 기록도 삭제해줘야 함
         em.remove(getSpecific(id).get(0));

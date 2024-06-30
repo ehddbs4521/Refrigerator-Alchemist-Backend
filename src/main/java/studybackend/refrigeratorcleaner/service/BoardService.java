@@ -8,10 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import studybackend.refrigeratorcleaner.dto.BoardDto;
 import studybackend.refrigeratorcleaner.entity.Board;
 import studybackend.refrigeratorcleaner.entity.BoardContent;
+import studybackend.refrigeratorcleaner.entity.User;
 import studybackend.refrigeratorcleaner.repository.BoardRepository;
+import studybackend.refrigeratorcleaner.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -19,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardService {
         private final BoardRepository bRepository ;
-
+        private final UserRepository userRepository;
         public void saveBoard(Board b){
                 bRepository.saveBoard(b);
         }
@@ -36,6 +39,9 @@ public class BoardService {
                         ingredients(b.getIngredients()).
                         build();
                 bRepository.saveBoard(board);
+        }
+        public User getUser(String nickName) { return
+                bRepository.getUserByNickName(nickName);
         }
         public void deleteBoard(Long id) {
                 bRepository.deleteBoard(id);
